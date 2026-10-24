@@ -114,6 +114,16 @@ main.contenedor { padding-top: 12px; padding-bottom: calc(var(--alto-barra) + 32
   clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0 50%);
 }
 
+/* entrada escalonada al llegar a cada pantalla (solo CSS) */
+main.contenedor > * { animation: aparecer .5s var(--curva-miel) both; }
+main.contenedor > :nth-child(2) { animation-delay: 50ms; }
+main.contenedor > :nth-child(3) { animation-delay: 100ms; }
+main.contenedor > :nth-child(4) { animation-delay: 150ms; }
+main.contenedor > :nth-child(5) { animation-delay: 200ms; }
+main.contenedor > :nth-child(n+6) { animation-delay: 250ms; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(10px); } }
+@keyframes aparecer-quieto { from { opacity: 0; } }
+
 /* ---------- tipografía */
 h1, h2, h3 { font-family: var(--f-titulo), Georgia, serif; font-weight: 600; text-wrap: balance; }
 h1 { font-size: 1.75rem; line-height: 1.12; margin: 12px 0 4px; letter-spacing: -0.01em; }
@@ -294,11 +304,26 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 
 /* ---------- mapa */
 .mapa { height: 280px; border-radius: var(--radio); overflow: hidden; border: 1px solid var(--cera-3); background: var(--cera-2); z-index: 0; }
-.marcador { display: inline-flex; align-items: center; gap: 4px; background: var(--cera); color: var(--propoleo); border: 2px solid var(--c); border-radius: 999px; padding: 2px 8px 2px 2px; font: 700 13px/1.2 system-ui, sans-serif; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
-.marcador svg { width: 22px; height: 22px; }
-.mapa.lejos .marcador { padding: 2px; }
-.mapa.lejos .marcador span { display: none; }
-.mapa.lejos .marcador svg { width: 26px; height: 26px; }
+.marcador {
+  position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px 0 0; color: var(--propoleo);
+  font: 700 13px/1.2 var(--f-texto), system-ui, sans-serif; white-space: nowrap;
+}
+.marcador svg { width: 30px; height: 32px; flex: none; position: relative; filter: drop-shadow(0 1px 2px rgb(23 17 10 / .35)); }
+.marcador span:not(.onda) {
+  background: var(--cera); padding: 3px 10px 3px 8px; margin-left: -6px; border: 1.5px solid var(--c);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%);
+}
+/* la alerta se propaga: onda terracota que sale de la celda */
+.marcador .onda {
+  position: absolute; left: 15px; top: 50%; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%;
+  border: 3px solid var(--alerta); opacity: 0; pointer-events: none;
+  animation: expandir 2.4s var(--curva-miel) var(--retraso, 0s) 3 both;
+}
+@keyframes expandir { 0% { transform: scale(.06); opacity: .9; } 100% { transform: scale(1); opacity: 0; } }
+.mapa.lejos .marcador span:not(.onda) { display: none; }
+/* mosaicos del mapa en tono cera */
+.mapa .leaflet-tile-pane { filter: sepia(.35) saturate(.75) brightness(1.03); }
+@media (prefers-color-scheme: dark) { .mapa .leaflet-tile-pane { filter: invert(.9) hue-rotate(180deg) sepia(.45) saturate(.6) brightness(.85); } }
 .leaflet-container { font: inherit; }
 
 /* ---------- imprimir la prueba */
@@ -310,7 +335,8 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 
 /* ---------- movimiento reducido: solo transiciones de opacidad */
 @media (prefers-reduced-motion: reduce) {
-  .respira, .miel-sube, .esqueleto i { animation: none !important; }
+  .respira, .miel-sube, .esqueleto i, .marcador .onda { animation: none !important; }
+  main.contenedor > * { animation-name: aparecer-quieto; }
   .trazo-check { animation: none; stroke-dashoffset: 0; }
   .boton:active { transform: none; }
 }

@@ -4,9 +4,9 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo } from "react";
 import { useApi } from "@/lib/api";
-import { ESTADOS, problema } from "@/lib/textos";
 import { Cargando, Chip, IconoEstado, claseEstado, hace, saludo } from "@/components/ui";
 import TarjetaAviso from "@/components/TarjetaAviso";
+import Panal from "@/components/Panal";
 
 const Mapa = dynamic(() => import("@/components/Mapa"), { ssr: false, loading: () => <div className="mapa" /> });
 
@@ -45,6 +45,14 @@ export default function Inicio() {
     document.getElementById(`apiario-${a.apiario_id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
   const apiarios = useMemo(() => datos?.apiarios || [], [datos]);
+  // apiarios de cada fumigación en la zona, para que la onda vaya de uno a otro en el mapa
+  const brotes = useMemo(() => {
+    const vistos = new Set();
+    return (avisos?.alertas || [])
+      .filter((a) => a.tipo === "BROTE_REGIONAL" && a.metricas?.apiarios?.length > 1)
+      .map((a) => a.metricas.apiarios)
+      .filter((b) => !vistos.has(b.join()) && vistos.add(b.join()));
+  }, [avisos]);
 
   if (!datos) return <Cargando error={error} recargar={recargar} />;
 
@@ -65,7 +73,7 @@ export default function Inicio() {
 
   return (
     <>
-      <h1>{saludo()} 👋</h1>
+      <h1>{saludo()}</h1>
       <p className="sub">Así están tus colmenas ahora.</p>
       <Resumen r={datos.resumen} />
 
@@ -84,34 +92,21 @@ export default function Inicio() {
       )}
 
       <h2>Dónde están tus apiarios</h2>
-      <Mapa apiarios={apiarios} alTocar={irApiario} />
-      <p className="chico">Toca un apiario en el mapa para ver sus colmenas. El círculo rojo marca 3 km alrededor de un envenenamiento.</p>
+      <Mapa apiarios={apiarios} brotes={brotes} alTocar={irApiario} />
+      <p className="chico">Toca un apiario en el mapa para ver sus colmenas. El círculo punteado marca 3 km alrededor de un envenenamiento.</p>
 
       <h2>Tus apiarios</h2>
-      <div className="pila">
+      <div className="pila" style={{ gap: 28 }}>
         {apiarios.map((a) => (
-          <section key={a.apiario_id} id={`apiario-${a.apiario_id}`} className="tarjeta" style={{ scrollMarginTop: 80 }}>
+          <section key={a.apiario_id} id={`apiario-${a.apiario_id}`} style={{ scrollMarginTop: 80 }}>
             <div className="apiario-cabeza">
               <div>
-                <h3 style={{ fontSize: "1.15rem" }}>{a.nombre}</h3>
+                <h3>{a.nombre}</h3>
                 <div className="chico">{a.municipio}{a.apicultor ? ` · ${a.apicultor}` : ""}</div>
               </div>
               <Chip estado={a.estado} />
             </div>
-            <div className="colmenas">
-              {datos.colmenas.filter((c) => c.apiario_id === a.apiario_id).map((c) => {
-                const peor = c.alertas_vigentes?.[0];
-                return (
-                  <Link key={c.colmena_id} href={`/colmenas/${c.colmena_id}`} className={`colmena ${claseEstado(c.estado)}`}>
-                    <span className="nombre"><IconoEstado estado={c.estado} />{c.colmena_id}</span>
-                    <span className="que">
-                      {peor ? `${problema(peor.tipo).emoji} ${problema(peor.tipo).titulo}` : ESTADOS[c.estado]?.frase}
-                    </span>
-                    {c.conectada === false && <span className="que">📡 Sin señal</span>}
-                  </Link>
-                );
-              })}
-            </div>
+            <Panal colmenas={datos.colmenas.filter((c) => c.apiario_id === a.apiario_id)} />
           </section>
         ))}
       </div>
