@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useApi } from "@/lib/api";
 import { Cargando, Chip, IconoEstado, claseEstado, hace, saludo } from "@/components/ui";
 import TarjetaAviso from "@/components/TarjetaAviso";
@@ -10,7 +10,14 @@ import Panal from "@/components/Panal";
 
 const Mapa = dynamic(() => import("@/components/Mapa"), { ssr: false, loading: () => <div className="mapa" /> });
 
-function Resumen({ r }) {
+// Cada recuadro del resumen filtra la lista de colmenas
+const FILTROS = {
+  bien: { titulo: "Colmenas que están bien", estados: ["sana"] },
+  revisar: { titulo: "Colmenas para revisar", estados: ["alerta", "atencion"] },
+  urgente: { titulo: "Colmenas con ayuda urgente", estados: ["critica"] },
+};
+
+function Resumen({ r, filtro, elegir }) {
   const urgentes = r.critica;
   const revisar = r.alerta + r.atencion;
   let estado = "sana", titulo = "Todas tus colmenas están bien", texto = "No tienes que hacer nada por ahora.";
@@ -30,9 +37,13 @@ function Resumen({ r }) {
         <div><strong>{titulo}</strong><span>{texto}</span></div>
       </div>
       <div className="resumen">
-        <div className={`cifra ${claseEstado("sana")}`}><IconoEstado estado="sana" /><b>{r.sana}</b><span>Bien</span></div>
-        <div className={`cifra ${claseEstado("atencion")}`}><IconoEstado estado="atencion" /><b>{r.alerta + r.atencion}</b><span>Revisar</span></div>
-        <div className={`cifra ${claseEstado("critica")}`}><IconoEstado estado="critica" /><b>{r.critica}</b><span>Urgente</span></div>
+        {[["bien", "sana", r.sana, "Bien"], ["revisar", "atencion", r.alerta + r.atencion, "Revisar"],
+          ["urgente", "critica", r.critica, "Urgente"]].map(([clave, estado, cuantas, texto]) => (
+          <button key={clave} type="button" className={`cifra ${claseEstado(estado)}`} aria-pressed={filtro === clave}
+            onClick={() => elegir(filtro === clave ? null : clave)} aria-label={`Ver ${cuantas} colmenas: ${texto}`}>
+            <IconoEstado estado={estado} /><b>{cuantas}</b><span>{texto}</span>
+          </button>
+        ))}
       </div>
     </>
   );
@@ -41,6 +52,11 @@ function Resumen({ r }) {
 export default function Inicio() {
   const { datos, error, recargar } = useApi("/colmenas", 5000);
   const { datos: avisos } = useApi("/alertas?limite=40", 6000);
+  const [filtro, setFiltro] = useState(null);
+  const elegir = useCallback((f) => {
+    setFiltro(f);
+    if (f) setTimeout(() => document.getElementById("lista-colmenas")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  }, []);
   const irApiario = useCallback((a) => {
     document.getElementById(`apiario-${a.apiario_id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
@@ -55,6 +71,8 @@ export default function Inicio() {
   }, [avisos]);
 
   if (!datos) return <Cargando error={error} recargar={recargar} />;
+
+  const visibles = filtro ? datos.colmenas.filter((c) => FILTROS[filtro].estados.includes(c.estado)) : datos.colmenas;
 
   // Un aviso por apiario (el más grave y luego el más reciente), solo urgentes y de "revisar hoy"
   const RANGO = { critica: 2, alta: 1 };
@@ -75,7 +93,7 @@ export default function Inicio() {
     <>
       <h1>{saludo()}</h1>
       <p className="sub">Así están tus colmenas ahora.</p>
-      <Resumen r={datos.resumen} />
+      <Resumen r={datos.resumen} filtro={filtro} elegir={elegir} />
 
       {datos.colmenas.length === 0 && (
         <div className="tarjeta" style={{ marginTop: 16 }}>Todavía no llegan datos de tus colmenas.</div>
@@ -95,9 +113,15 @@ export default function Inicio() {
       <Mapa apiarios={apiarios} brotes={brotes} alTocar={irApiario} />
       <p className="chico">Toca un apiario en el mapa para ver sus colmenas. El círculo punteado marca 3 km alrededor de un envenenamiento.</p>
 
-      <h2>Tus apiarios</h2>
+      <div id="lista-colmenas" style={{ scrollMarginTop: 80 }}>
+        <h2>{filtro ? `${FILTROS[filtro].titulo} (${visibles.length})` : "Tus apiarios"}</h2>
+        {filtro && (
+          <p><button type="button" className="boton ancho" onClick={() => setFiltro(null)}>Ver todas las colmenas</button></p>
+        )}
+        {filtro && visibles.length === 0 && <div className="tarjeta">No hay colmenas en este grupo.</div>}
+      </div>
       <div className="pila" style={{ gap: 28 }}>
-        {apiarios.map((a) => (
+        {apiarios.filter((a) => visibles.some((c) => c.apiario_id === a.apiario_id)).map((a) => (
           <section key={a.apiario_id} id={`apiario-${a.apiario_id}`} style={{ scrollMarginTop: 80 }}>
             <div className="apiario-cabeza">
               <div>
@@ -106,7 +130,7 @@ export default function Inicio() {
               </div>
               <Chip estado={a.estado} />
             </div>
-            <Panal colmenas={datos.colmenas.filter((c) => c.apiario_id === a.apiario_id)} />
+            <Panal colmenas={visibles.filter((c) => c.apiario_id === a.apiario_id)} />
           </section>
         ))}
       </div>

@@ -451,3 +451,8 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 
 /* Palabras o códigos largos (folios, huellas, "envenenamiento" en títulos grandes) no deben salirse de la pantalla */
 h1, h2, h3, p, li, td, th, strong, .narrativa { overflow-wrap: break-word; hyphens: auto; }
+
+/* Los recuadros del resumen son botones: al tocarlos filtran las colmenas */
+button.cifra { font: inherit; width: 100%; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; min-height: 56px; }
+button.cifra[aria-pressed="true"] { outline: 3px solid var(--c); outline-offset: -3px; box-shadow: 0 0 0 3px var(--c); }
+button.cifra:focus-visible { outline: 3px solid var(--miel); outline-offset: 2px; }
