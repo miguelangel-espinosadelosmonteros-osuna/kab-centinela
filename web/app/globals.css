@@ -368,6 +368,29 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 .verificar { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 14px 16px; background: var(--cera-2); border-radius: var(--radio); }
 .verificar b { display: block; font-size: 1.1rem; }
 
+/* ---------- El problema: portada y reportaje */
+.portada { display: grid; gap: 14px; padding-bottom: 8px; }
+.portada .vuelo { margin: 0 -16px -18px; }
+.marca-portada { display: flex; gap: 14px; align-items: center; }
+.portada h1 { font-size: clamp(2.6rem, 11vw, 4.2rem); line-height: .95; letter-spacing: -0.025em; font-weight: 700; margin: 6px 0 0; font-variation-settings: "SOFT" 60, "WONK" 1; }
+.portada h1 em { font-style: italic; font-weight: 400; color: var(--miel-profunda); }
+.portada .lema { font-family: var(--f-titulo), Georgia, serif; font-style: italic; font-size: 1.35rem; color: var(--propoleo-2); margin: 0; }
+.portada .entrada { font-size: 1.08rem; max-width: 60ch; margin: 0; }
+.portada .boton { justify-self: start; }
+.cifras { display: grid; gap: 16px; margin: 8px 0; }
+@media (min-width: 640px) { .cifras { grid-template-columns: repeat(3, 1fr); } }
+.cifra-grande { border-top: 2px solid var(--propoleo); padding-top: 10px; display: grid; gap: 4px; align-content: start; }
+.cifra-grande b { font-family: var(--f-titulo), Georgia, serif; font-size: 2.4rem; line-height: 1; font-weight: 700; letter-spacing: -0.02em; }
+.cifra-grande span { font-size: .95rem; }
+.cifra-grande a { font-size: .78rem; }
+.reportaje { display: grid; gap: 22px; }
+.reportaje article { display: grid; gap: 6px; border-left: 3px solid var(--miel); padding-left: 16px; }
+.reportaje h3 { font-size: 1.25rem; margin: 0; }
+.reportaje p { margin: 0; max-width: 62ch; }
+.detecta { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.detecta li { display: flex; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--cera-3); }
+.detecta li > span { display: grid; }
+
 /* ---------- cargas: la celda se llena de miel */
 .cargando { display: grid; justify-items: center; gap: 10px; padding: 32px 0; color: var(--propoleo-2); font-weight: 700; }
 .miel-sube { animation: subir 1.8s var(--curva-miel) infinite; }

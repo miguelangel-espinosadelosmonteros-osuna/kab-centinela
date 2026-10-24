@@ -1,3 +1,8 @@
+import Link from "next/link";
+import Icono from "@/components/Icono";
+import Abeja from "@/components/Abeja";
+import { Logo } from "@/components/Encabezado";
+
 // Datos del problema con su fuente. Revisados el 24 oct 2026; cada cifra se atribuye a quien la publicó.
 const DATOS = [
   {
@@ -60,40 +65,66 @@ const DATOS = [
 ];
 
 const DETECTA = [
-  ["Intoxicación por plaguicida", "el zumbido y el peso caen a la vez"],
-  ["Brote regional (fumigación)", "intoxicación en 2 apiarios a menos de 3 km en menos de 6 h"],
-  ["Golpe de calor", "la cámara de cría pasa de 38 °C"],
-  ["Sequía", "humedad menor a 30% con más de 35 °C por horas"],
-  ["Frío extremo", "la cría baja de 30 °C"],
-  ["Hambruna (deforestación)", "la colmena pierde peso durante días"],
-  ["Ausencia de reina", "zumbido agudo sostenido"],
-  ["Enjambrazón", "cae 1.5 a 5 kg de golpe"],
-  ["Varroa o enfermedad", "no regula su temperatura y el zumbido baja poco a poco"],
-  ["Sensor caído o robo", "Last Will de IoT Core"],
+  ["INTOXICACION", "Intoxicación por plaguicida", "el zumbido y el peso caen a la vez"],
+  ["BROTE_REGIONAL", "Brote regional (fumigación)", "intoxicación en 2 apiarios a menos de 3 km en menos de 6 h"],
+  ["GOLPE_CALOR", "Golpe de calor", "la cámara de cría pasa de 38 °C"],
+  ["SEQUIA", "Sequía", "humedad menor a 30% con más de 35 °C por horas"],
+  ["FRIO_EXTREMO", "Frío extremo", "la cría baja de 30 °C"],
+  ["HAMBRUNA", "Hambruna (deforestación)", "la colmena pierde peso durante días"],
+  ["AUSENCIA_REINA", "Ausencia de reina", "zumbido agudo sostenido"],
+  ["ENJAMBRAZON", "Enjambrazón", "cae 1.5 a 5 kg de golpe"],
+  ["VARROA_ENFERMEDAD", "Varroa o enfermedad", "no regula su temperatura y el zumbido baja poco a poco"],
+  ["DESCONEXION", "Sensor caído o robo", "Last Will de IoT Core"],
+];
+
+// Las tres cifras de la portada, con su fuente
+const CIFRAS = [
+  ["8 millones", "de abejas muertas por plaguicidas entre 2023 y 2025 en Campeche y Yucatán, sin responsables.", DATOS[1]],
+  ["9,893 t", "de miel en 2025: Yucatán es el primer productor del país.", DATOS[2]],
+  ["99 colmenas", "envenenadas con fipronil en Nohalal, Tekax (2025). Cuando llegó el apicultor, ya no había pruebas.", DATOS[0]],
 ];
 
 export default function Problema() {
   return (
     <>
-      <h1>Por qué importa</h1>
-      <p className="sub">
-        Cuando el apicultor llega al apiario ya no hay pruebas. KAB Centinela escucha la colmena, avisa en
-        minutos y convierte los datos en evidencia firmada que nadie puede borrar.
-      </p>
-      <div className="pila">
+      <header className="portada">
+        <Abeja />
+        <div className="marca-portada"><Logo tam={56} /><span className="ceja">Tekax · Peto · Yucatán</span></div>
+        <h1>KAB <em>Centinela</em></h1>
+        <p className="lema">La colmena que escucha.</p>
+        <p className="entrada">
+          Cuando el apicultor llega al apiario ya no hay pruebas. KAB Centinela escucha cada colmena, avisa en
+          minutos y convierte los datos en evidencia firmada que nadie puede borrar.
+        </p>
+        <div className="cifras">
+          {CIFRAS.map(([cifra, texto, d]) => (
+            <div className="cifra-grande" key={cifra}>
+              <b>{cifra}</b>
+              <span>{texto}</span>
+              <a href={d.url} target="_blank" rel="noreferrer">Fuente: {d.fuente}</a>
+            </div>
+          ))}
+        </div>
+        <Link href="/" className="boton primario"><Icono nombre="colmena" />Ver el tablero</Link>
+      </header>
+
+      <h2>Por qué importa</h2>
+      <div className="reportaje">
         {DATOS.map((d) => (
-          <div className="tarjeta" key={d.titulo}>
-            <strong>{d.titulo}</strong>
-            <p style={{ margin: "6px 0" }}>{d.texto}</p>
+          <article key={d.titulo}>
+            <h3>{d.titulo}</h3>
+            <p>{d.texto}</p>
             <a className="chico" href={d.url} target="_blank" rel="noreferrer">Fuente: {d.fuente}</a>
-          </div>
+          </article>
         ))}
       </div>
 
       <h2>Qué detecta cada colmena</h2>
-      <table className="tabla tarjeta">
-        <tbody>{DETECTA.map(([a, b]) => <tr key={a}><td>{a}</td><td>{b}</td></tr>)}</tbody>
-      </table>
+      <ul className="detecta">
+        {DETECTA.map(([tipo, a, b]) => (
+          <li key={tipo}><Icono nombre={tipo} tam={28} /><span><b>{a}</b><span className="chico">{b}</span></span></li>
+        ))}
+      </ul>
     </>
   );
 }
