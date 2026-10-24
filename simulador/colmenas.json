@@ -1,0 +1,12 @@
+{
+  "_nota": "Coordenadas aproximadas. Nohalal A y B están a ~1.4 km (brote regional); Peto está a ~40 km.",
+  "colmenas": [
+    {"colmena_id": "TEK-01", "apiario_id": "TEK-NOH-A", "apiario_nombre": "Nohalal A", "municipio": "Tekax", "apicultor": "Cooperativa Nohalal", "lat": 20.0960, "lon": -89.3300, "peso_kg": 42.0},
+    {"colmena_id": "TEK-02", "apiario_id": "TEK-NOH-A", "apiario_nombre": "Nohalal A", "municipio": "Tekax", "apicultor": "Cooperativa Nohalal", "lat": 20.0960, "lon": -89.3300, "peso_kg": 38.5},
+    {"colmena_id": "TEK-03", "apiario_id": "TEK-NOH-A", "apiario_nombre": "Nohalal A", "municipio": "Tekax", "apicultor": "Cooperativa Nohalal", "lat": 20.0960, "lon": -89.3300, "peso_kg": 45.2},
+    {"colmena_id": "TEK-04", "apiario_id": "TEK-NOH-B", "apiario_nombre": "Nohalal B", "municipio": "Tekax", "apicultor": "Cooperativa Nohalal", "lat": 20.1050, "lon": -89.3200, "peso_kg": 40.1},
+    {"colmena_id": "TEK-05", "apiario_id": "TEK-NOH-B", "apiario_nombre": "Nohalal B", "municipio": "Tekax", "apicultor": "Cooperativa Nohalal", "lat": 20.1050, "lon": -89.3200, "peso_kg": 43.7},
+    {"colmena_id": "PET-01", "apiario_id": "PETO-01", "apiario_nombre": "Peto Centro", "municipio": "Peto", "apicultor": "Apicultores de Peto", "lat": 20.1256, "lon": -88.9217, "peso_kg": 41.3},
+    {"colmena_id": "PET-02", "apiario_id": "PETO-01", "apiario_nombre": "Peto Centro", "municipio": "Peto", "apicultor": "Apicultores de Peto", "lat": 20.1256, "lon": -88.9217, "peso_kg": 39.9}
+  ]
+}

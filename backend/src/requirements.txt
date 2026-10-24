@@ -1,0 +1,2 @@
+# boto3 ya viene en el runtime de Lambda
+anthropic[bedrock]

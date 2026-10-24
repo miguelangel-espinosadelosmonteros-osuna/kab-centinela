@@ -1,0 +1,349 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  KAB Centinela - la colmena que escucha. IoT Core, Lambda, DynamoDB, EventBridge,
+  SNS, KMS, S3 Object Lock, Bedrock y API Gateway.
+
+Parameters:
+  CorreoAlertas:
+    Type: String
+    Default: ""
+    Description: Correo que recibe todos los avisos (confirma la suscripción que llega al desplegar).
+  TelefonoAlertas:
+    Type: String
+    Default: ""
+    Description: Teléfono en formato E.164 (+52...) que recibe SMS de alertas críticas (verifícalo antes en el sandbox de SNS).
+  SmsActivo:
+    Type: String
+    Default: "si"
+    AllowedValues: ["si", "no"]
+    Description: Pon "no" para ensayar sin gastar SMS (cada SMS a México cuesta ~0.10 USD).
+  RetencionEvidenciaDias:
+    Type: Number
+    Default: 1
+    MinValue: 1
+    Description: Días que S3 Object Lock impide borrar o cambiar un expediente.
+  ModoRetencion:
+    Type: String
+    Default: COMPLIANCE
+    AllowedValues: [COMPLIANCE, GOVERNANCE]
+    Description: COMPLIANCE = nadie puede borrar, ni el administrador. GOVERNANCE = un admin con permiso especial sí.
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-opus-5-5
+    Description: Modelo de Bedrock que redacta el expediente (anthropic.* o p. ej. amazon.nova-lite-v1:0).
+  UrlTablero:
+    Type: String
+    Default: ""
+    Description: URL del tablero en Vercel (para los links de los avisos y del QR).
+
+Conditions:
+  HayCorreo: !Not [!Equals [!Ref CorreoAlertas, ""]]
+  HayTelefono: !Not [!Equals [!Ref TelefonoAlertas, ""]]
+
+Globals:
+  Function:
+    Runtime: python3.12
+    CodeUri: src/
+    Architectures: [arm64]
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        TABLA_LECTURAS: !Ref TablaLecturas
+        TABLA_COLMENAS: !Ref TablaColmenas
+        TABLA_EVENTOS: !Ref TablaEventos
+        TABLA_DOCUMENTOS: !Ref TablaDocumentos
+        BUS_EVENTOS: !Ref BusEventos
+        TOPIC_ALERTAS: !Ref TopicAlertas
+        LLAVE_KMS: !Ref LlaveFirma
+        BUCKET_EVIDENCIA: !Ref BucketEvidencia
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
+        URL_TABLERO: !Ref UrlTablero
+        SMS_ACTIVO: !Ref SmsActivo
+        LOG_LEVEL: INFO
+
+Resources:
+  # ------------------------------------------------------------ DynamoDB
+  TablaLecturas:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: colmena_id, AttributeType: S }
+        - { AttributeName: ts, AttributeType: S }
+      KeySchema:
+        - { AttributeName: colmena_id, KeyType: HASH }
+        - { AttributeName: ts, KeyType: RANGE }
+      TimeToLiveSpecification:
+        AttributeName: expira
+        Enabled: true
+
+  TablaColmenas:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: colmena_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: colmena_id, KeyType: HASH }
+
+  TablaEventos:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+
+  TablaDocumentos:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: doc_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: doc_id, KeyType: HASH }
+
+  # ---------------------------------------------------------- EventBridge
+  BusEventos:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub "kab-centinela-${AWS::StackName}"
+
+  # ------------------------------------------------------------------ SNS
+  TopicAlertas:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: KAB
+
+  SuscripcionCorreo:
+    Type: AWS::SNS::Subscription
+    Condition: HayCorreo
+    Properties:
+      TopicArn: !Ref TopicAlertas
+      Protocol: email
+      Endpoint: !Ref CorreoAlertas
+
+  SuscripcionSms:
+    Type: AWS::SNS::Subscription
+    Condition: HayTelefono
+    Properties:
+      TopicArn: !Ref TopicAlertas
+      Protocol: sms
+      Endpoint: !Ref TelefonoAlertas
+      FilterPolicyScope: MessageAttributes
+      FilterPolicy:
+        sms: ["si"]
+
+  # ------------------------------------------------------------------ KMS
+  LlaveFirma:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KAB Centinela - firma ECDSA P-256 de expedientes y pasaportes
+      KeySpec: ECC_NIST_P256
+      KeyUsage: SIGN_VERIFY
+      PendingWindowInDays: 7
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AdministraLaCuenta
+            Effect: Allow
+            Principal: { AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root" }
+            Action: "kms:*"
+            Resource: "*"
+
+  AliasLlaveFirma:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/kab-centinela-${AWS::StackName}"
+      TargetKeyId: !Ref LlaveFirma
+
+  # ------------------------------------------------------ S3 Object Lock
+  BucketEvidencia:
+    Type: AWS::S3::Bucket
+    # Con Object Lock el bucket no se puede borrar mientras haya retención: se conserva al hacer sam delete
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ObjectLockEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      ObjectLockConfiguration:
+        ObjectLockEnabled: Enabled
+        Rule:
+          DefaultRetention:
+            Mode: !Ref ModoRetencion
+            Days: !Ref RetencionEvidenciaDias
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # ------------------------------------------------------------- IoT Core
+  PoliticaIoT:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyName: !Sub "kab-centinela-${AWS::StackName}-sensores"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: iot:Connect
+            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:client/kab-*"
+          - Effect: Allow
+            Action: iot:Publish
+            Resource: !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/kab/colmenas/*"
+
+  # ------------------------------------------------------------- Lambdas
+  FnProcesarTelemetria:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Regla IoT -> detección de alertas (Rol 3)
+      Handler: handlers.procesar_telemetria.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaLecturas }
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaColmenas }
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaEventos }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref BusEventos }
+      Events:
+        Telemetria:
+          Type: IoTRule
+          Properties:
+            Sql: "SELECT * FROM 'kab/colmenas/+/telemetria'"
+            AwsIotSqlVersion: "2016-03-23"
+
+  FnEstadoConexion:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Last Will de los sensores (Rol 2)
+      Handler: handlers.estado_conexion.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaColmenas }
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaEventos }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref BusEventos }
+      Events:
+        Estado:
+          Type: IoTRule
+          Properties:
+            Sql: "SELECT * FROM 'kab/colmenas/+/estado'"
+            AwsIotSqlVersion: "2016-03-23"
+
+  FnNotificar:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Alertas -> correo y SMS con SNS (Rol 3)
+      Handler: handlers.notificar.handler
+      Policies:
+        - SNSPublishMessagePolicy: { TopicName: !GetAtt TopicAlertas.TopicName }
+      Events:
+        TodaAlerta:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref BusEventos
+            Pattern:
+              source: [kab.centinela]
+              detail-type: [AlertaColmena, ExpedienteFirmado]
+
+  FnExpediente:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Expediente firmado con KMS, narrado por Bedrock y guardado con Object Lock (Rol 4)
+      Handler: handlers.expediente.handler
+      Timeout: 120
+      MemorySize: 512
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TablaLecturas }
+        - DynamoDBReadPolicy: { TableName: !Ref TablaColmenas }
+        - DynamoDBReadPolicy: { TableName: !Ref TablaEventos }
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaDocumentos }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref BusEventos }
+        - Statement:
+            - Effect: Allow
+              Action: [kms:Sign, kms:GetPublicKey]
+              Resource: !GetAtt LlaveFirma.Arn
+            - Effect: Allow
+              Action: [s3:PutObject, s3:GetObjectRetention, s3:GetObject, s3:GetObjectVersion]
+              Resource: !Sub "${BucketEvidencia.Arn}/*"
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+                - bedrock-mantle:*
+              Resource: "*"
+      Events:
+        SoloIntoxicacion:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref BusEventos
+            Pattern:
+              source: [kab.centinela]
+              detail-type: [AlertaColmena]
+              detail:
+                tipo: [INTOXICACION, BROTE_REGIONAL]
+
+  FnApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: API HTTP del tablero, pasaporte y verificación de firmas (Rol 5 la consume)
+      Handler: handlers.api.handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref TablaLecturas }
+        - DynamoDBReadPolicy: { TableName: !Ref TablaColmenas }
+        - DynamoDBReadPolicy: { TableName: !Ref TablaEventos }
+        - DynamoDBCrudPolicy: { TableName: !Ref TablaDocumentos }
+        - Statement:
+            - Effect: Allow
+              Action: [kms:Sign, kms:Verify, kms:GetPublicKey]
+              Resource: !GetAtt LlaveFirma.Arn
+            - Effect: Allow
+              Action: [s3:PutObject, s3:GetObject, s3:GetObjectVersion, s3:GetObjectRetention]
+              Resource: !Sub "${BucketEvidencia.Arn}/*"
+      Events:
+        Salud: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /salud, Method: GET } }
+        Colmenas: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /colmenas, Method: GET } }
+        Colmena: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: "/colmenas/{id}", Method: GET } }
+        Alertas: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /alertas, Method: GET } }
+        Expedientes: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /expedientes, Method: GET } }
+        Expediente: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: "/expedientes/{id}", Method: GET } }
+        VerificarS3: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: "/expedientes/{id}/verificar", Method: GET } }
+        Verificar: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /verificar, Method: POST } }
+        LlavePublica: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /llave-publica, Method: GET } }
+        Pasaportes: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /pasaportes, Method: GET } }
+        CrearPasaporte: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: /pasaportes, Method: POST } }
+        Pasaporte: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Path: "/pasaportes/{id}", Method: GET } }
+
+  # -------------------------------------------------------- API Gateway
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowMethods: [GET, POST, OPTIONS]
+        AllowHeaders: [content-type]
+
+Outputs:
+  ApiUrl:
+    Description: URL de la API (ponla en Vercel como NEXT_PUBLIC_API_URL)
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  PoliticaIoT:
+    Description: Nombre de la política IoT para registrar_dispositivo.py
+    Value: !Ref PoliticaIoT
+  TopicAlertas:
+    Value: !Ref TopicAlertas
+  BucketEvidencia:
+    Value: !Ref BucketEvidencia
+  LlaveFirma:
+    Value: !Ref LlaveFirma
+  BusEventos:
+    Value: !Ref BusEventos
+  TablaLecturas:
+    Value: !Ref TablaLecturas
