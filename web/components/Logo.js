@@ -1,12 +1,13 @@
 import { useId } from "react";
 
 // Logotipo de KAB Centinela: panal de 7 celdas con miel a distintos niveles. La misma geometría está en public/marca/*.svg y app/icon.svg.
-const R = 9.6, r = 8.9, W = Math.sqrt(3) * R, DY = 1.5 * R, C = 32;
-const hex = (x, y) => "M" + [0, 1, 2, 3, 4, 5].map((i) => {
+const R = 9.6, W = Math.sqrt(3) * R, DY = 1.5 * R;
+export const r = 8.9, C = 32;
+export const hex = (x, y) => "M" + [0, 1, 2, 3, 4, 5].map((i) => {
   const a = (Math.PI / 180) * (60 * i - 90);
   return `${(x + r * Math.cos(a)).toFixed(2)} ${(y + r * Math.sin(a)).toFixed(2)}`;
 }).join("L") + "Z";
-const CELDAS = [
+export const CELDAS = [
   [C - W / 2, C - DY, 0.5], [C + W / 2, C - DY, 0.82],
   [C - W, C, 1], [C + W, C, 0.66],
   [C - W / 2, C + DY, 1], [C + W / 2, C + DY, 1],
