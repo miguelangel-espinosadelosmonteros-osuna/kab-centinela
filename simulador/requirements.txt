@@ -1,2 +1,3 @@
-boto3
+# [crt] hace falta si las credenciales vienen de "aws login"
+boto3[crt]
 paho-mqtt>=2.0

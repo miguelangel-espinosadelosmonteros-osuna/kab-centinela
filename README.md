@@ -44,7 +44,7 @@ flowchart LR
 | Amazon SNS | Correo con todo y SMS solo para lo crítico, con un filtro por atributo para cuidar el costo. |
 | AWS KMS | Llave asimétrica P-256 que firma expedientes y pasaportes; la llave privada nunca sale de KMS. |
 | Amazon S3 Object Lock | Guarda el expediente en modo COMPLIANCE: nadie lo puede borrar ni modificar durante la retención. |
-| Amazon Bedrock | Redacta el expediente en español formal a partir del JSON firmado. Si falla, se usa una plantilla. |
+| Amazon Bedrock | Redacta el expediente en español formal a partir del JSON firmado (Amazon Nova Lite por defecto; Claude con el parámetro `BedrockModelId`). Si falla, se usa una plantilla. |
 | Amazon API Gateway | API HTTP para el tablero, el pasaporte con QR y la verificación de firmas. |
 
 ## Estructura
@@ -68,7 +68,7 @@ AWS CLI con credenciales (nunca en el repo), AWS SAM CLI, Python 3.12 y Node 20 
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
-pip install pytest boto3 paho-mqtt "anthropic[bedrock]"
+pip install pytest "boto3[crt]" paho-mqtt "anthropic[bedrock]"   # [crt] es para credenciales de "aws login"
 ./scripts/revisar_aws.sh          # ¿la cuenta tiene los 9 servicios?
 ```
 

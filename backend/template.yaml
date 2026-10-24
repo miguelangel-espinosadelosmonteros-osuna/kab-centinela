@@ -30,8 +30,10 @@ Parameters:
     Description: COMPLIANCE = nadie puede borrar, ni el administrador. GOVERNANCE = un admin con permiso especial sí.
   BedrockModelId:
     Type: String
-    Default: anthropic.claude-opus-5-5
-    Description: Modelo de Bedrock que redacta el expediente (anthropic.* o p. ej. amazon.nova-lite-v1:0).
+    Default: amazon.nova-lite-v1:0
+    Description: >
+      Modelo de Bedrock que redacta el expediente. amazon.nova-lite-v1:0 funciona sin trámites;
+      anthropic.claude-opus-5-5 requiere aceptar antes el acuerdo de Anthropic en la consola de Bedrock.
   UrlTablero:
     Type: String
     Default: ""
