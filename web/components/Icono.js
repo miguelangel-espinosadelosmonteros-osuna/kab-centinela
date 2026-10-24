@@ -108,7 +108,6 @@ export const ICONOS = {
   lapiz: p("M15.2 4.4l4.4 4.4L9 19.4H4.6V15zM13 6.6l4.4 4.4"),
   voltear: p("M4 12a8 8 0 0 1 14-5.3M18.5 3v4h-4M20 12a8 8 0 0 1-14 5.3M5.5 21v-4h4"),
   reloj: <><circle cx="12" cy="12" r="9" />{p("M12 7.2V12l3.2 2")}</>,
-  letra: p("M3 19 7.5 7l4.5 12M4.6 15h5.8M14 19l3.3-8.6 3.2 8.6M15.2 16.2h4.3"),
 };
 
 /** <Icono nombre="abeja" />. Con `titulo` se anuncia al lector de pantalla; sin él es decorativo. */

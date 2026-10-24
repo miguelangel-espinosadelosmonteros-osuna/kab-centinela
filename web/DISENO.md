@@ -27,7 +27,7 @@ Todo texto pasa AA (4.5:1). `--miel` y `--aviso` no sirven para texto chico: ús
 ## Tipografía
 
 - **Fraunces** (`--f-titulo`): títulos, cifras grandes y el banner de estado.
-- **Atkinson Hyperlegible** (`--f-texto`): todo lo demás. Está hecha para leerse con poca vista. Base de 18 px; el botón "AA" la sube a 21.
+- **Atkinson Hyperlegible** (`--f-texto`): todo lo demás. Está hecha para leerse con poca vista. Base de 18 px.
 - **IBM Plex Mono** (`--f-dato`, clase `.dato`): IDs de colmena (`TEK-03`), lecturas, firmas y hashes.
 
 ## Íconos (`components/Icono.js`)

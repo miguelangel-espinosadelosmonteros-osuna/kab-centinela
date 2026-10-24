@@ -122,7 +122,7 @@ NEXT_PUBLIC_API_URL=<ApiUrl> npm run dev      # sin la variable usa datos de dem
 En Vercel: importa el repo, pon **Root Directory = `web`** y agrega la variable `NEXT_PUBLIC_API_URL`. Opcional: `NEXT_PUBLIC_TELEFONO_AYUDA` muestra el botón "Llamar al técnico".
 
 El diseño está pensado para apicultores con poca experiencia en el celular:
-- letra grande, con un botón para agrandarla aún más;
+- letra grande;
 - botones de al menos 56 px y la navegación abajo, al alcance del pulgar;
 - palabras en vez de unidades técnicas ("el zumbido está muy bajo");
 - cada estado con ícono, color y palabra, nunca solo color;

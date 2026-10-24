@@ -28,7 +28,7 @@ export default function Panal({ colmenas }) {
                 aria-label={`Colmena ${c.colmena_id}: ${palabra}${tipo ? `, ${problema(tipo).titulo}` : ""}`}>
                 <svg className="fondo" viewBox="0 0 100 106" preserveAspectRatio="none" aria-hidden="true"><polygon points={HEX} /></svg>
                 <span className="contenido" aria-hidden="true">
-                  <span className="glifo"><Icono nombre={estado === "apagada" ? "DESCONEXION" : tipo || "check"} tam={26} grosor={2} /></span>
+                  <span className="glifo"><Icono nombre={estado === "apagada" ? "DESCONEXION" : tipo || "check"} tam={22} grosor={2} /></span>
                   <span className="id">{c.colmena_id}</span>
                   <span className="palabra">{palabra}</span>
                 </span>

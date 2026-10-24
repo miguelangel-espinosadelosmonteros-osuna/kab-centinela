@@ -27,6 +27,7 @@
   --sobre-estado: #ffffff;
 
   --foco: #1d5fa8;
+  --logo-vacio: #fbf4e4; --logo-trazo: #3a2414; --logo-zumbido: #f2b544;
   --linea-grafica: var(--miel-media);
   --curva-miel: cubic-bezier(0.22, 1, 0.36, 1); /* ease-out largo: miel que escurre */
   --curva-cera: cubic-bezier(0.45, 0, 0.2, 1);
@@ -47,11 +48,11 @@
     --apagada: #8c8070; --apagada-fondo: #2a231b;
     --sobre-estado: #17110a;
     --foco: #8ec1ff;
+    --logo-vacio: #241a0f; --logo-trazo: #f6e9cf; --logo-zumbido: #8a5508;
   }
 }
 
 html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
-html[data-letra="grande"] { font-size: 131%; }
 * { box-sizing: border-box; }
 
 body {
@@ -207,7 +208,7 @@ h3 { font-size: 1.1rem; line-height: 1.25; margin: 0 0 6px; }
 
 /* ---------- apiarios y panal de colmenas */
 .apiario-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--cera-3); padding-bottom: 8px; }
-.panal { --ancho: 100px; --hueco: 6px; --alto: calc(var(--ancho) * 1.1547); display: grid; margin-top: 12px; }
+.panal { --ancho: 104px; --hueco: 6px; --alto: calc(var(--ancho) * 1.1547); display: grid; margin-top: 12px; }
 .panal .fila { display: flex; gap: var(--hueco); }
 .panal .fila + .fila { margin-top: calc(var(--alto) * -0.25 + var(--hueco) * 0.6); }
 .panal .fila.corrida { padding-left: calc((var(--ancho) + var(--hueco)) / 2); }
@@ -221,9 +222,9 @@ h3 { font-size: 1.1rem; line-height: 1.25; margin: 0 0 6px; }
 .celda-colmena.estado-critica svg.fondo polygon { stroke-width: 5; }
 .celda-colmena:hover svg.fondo polygon { fill: color-mix(in srgb, var(--cf) 70%, var(--c)); }
 .celda-colmena:focus-visible svg.fondo polygon { stroke: var(--foco); stroke-width: 7; }
-.celda-colmena .contenido { position: relative; display: grid; justify-items: center; gap: 2px; text-align: center; padding: 0 10px; }
-.celda-colmena .id { font-family: var(--f-dato), monospace; font-weight: 500; font-size: 0.86rem; }
-.celda-colmena .palabra { font-size: 0.74rem; font-weight: 700; line-height: 1.15; max-width: 9ch; }
+.celda-colmena .contenido { position: relative; display: grid; justify-items: center; gap: 1px; text-align: center; padding: 0 14px; margin-top: -2px; }
+.celda-colmena .id { font-family: var(--f-dato), monospace; font-weight: 500; font-size: 0.74rem; letter-spacing: .02em; }
+.celda-colmena .palabra { font-size: 0.62rem; font-weight: 700; line-height: 1.15; max-width: 10ch; }
 .celda-colmena .glifo { color: var(--c-texto); display: grid; }
 /* la colmena respira: calma si está sana, agitada si hay aviso */
 .respira { animation: respirar var(--ritmo, 4.2s) var(--curva-cera) infinite; }

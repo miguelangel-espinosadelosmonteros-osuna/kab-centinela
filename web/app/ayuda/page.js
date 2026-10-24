@@ -43,7 +43,6 @@ export default function Ayuda() {
             <tr><td style={{ width: 48 }} aria-hidden="true"><Icono nombre="mensaje" tam={28} /></td><td><b>WhatsApp</b>: manda el aviso a tus vecinos o a tu cooperativa.</td></tr>
             <tr><td style={{ width: 48 }} aria-hidden="true"><Icono nombre="escudo" tam={28} /></td><td><b>Prueba</b>: guarda lo que pasó para que puedas denunciar.</td></tr>
             <tr><td style={{ width: 48 }} aria-hidden="true"><Icono nombre="frasco" tam={28} /></td><td><b>Mi miel</b>: crea un certificado para vender tu miel a mejor precio.</td></tr>
-            <tr><td aria-hidden="true"><Icono nombre="letra" tam={28} /></td><td><b>Letra grande</b>: arriba a la derecha, para ver todo más grande.</td></tr>
           </tbody>
         </table>
       </div>

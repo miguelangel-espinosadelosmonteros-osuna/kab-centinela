@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Icono from "@/components/Icono";
 import Abeja from "@/components/Abeja";
-import { Logo } from "@/components/Encabezado";
+import Logo from "@/components/Logo";
 
 // Datos del problema con su fuente. Revisados el 24 oct 2026; cada cifra se atribuye a quien la publicó.
 const DATOS = [
@@ -89,7 +89,7 @@ export default function Problema() {
     <>
       <header className="portada">
         <Abeja />
-        <div className="marca-portada"><Logo tam={56} /><span className="ceja">Tekax · Peto · Yucatán</span></div>
+        <div className="marca-portada"><Logo tam={72} /><span className="ceja">Tekax · Peto · Yucatán</span></div>
         <h1>KAB <em>Centinela</em></h1>
         <p className="lema">La colmena que escucha.</p>
         <p className="entrada">
