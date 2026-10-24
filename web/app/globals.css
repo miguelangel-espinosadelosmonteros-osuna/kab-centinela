@@ -27,7 +27,7 @@
   --sobre-estado: #ffffff;
 
   --foco: #1d5fa8;
-  --logo-vacio: #fbf4e4; --logo-trazo: #3a2414; --logo-zumbido: #f2b544;
+  --logo-vacio: #fbf4e4; --logo-trazo: #3a2414;
   --linea-grafica: var(--miel-media);
   --curva-miel: cubic-bezier(0.22, 1, 0.36, 1); /* ease-out largo: miel que escurre */
   --curva-cera: cubic-bezier(0.45, 0, 0.2, 1);
@@ -48,7 +48,7 @@
     --apagada: #8c8070; --apagada-fondo: #2a231b;
     --sobre-estado: #17110a;
     --foco: #8ec1ff;
-    --logo-vacio: #241a0f; --logo-trazo: #f6e9cf; --logo-zumbido: #8a5508;
+    --logo-vacio: #241a0f; --logo-trazo: #f6e9cf;
   }
 }
 

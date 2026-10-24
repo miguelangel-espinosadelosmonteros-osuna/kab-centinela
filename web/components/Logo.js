@@ -1,7 +1,6 @@
 import { useId } from "react";
 
-// Logotipo de KAB Centinela: panal de 7 celdas. Al centro, el zumbido (la colmena que escucha);
-// alrededor, miel a distintos niveles. La misma geometría está en public/marca/*.svg y app/icon.svg.
+// Logotipo de KAB Centinela: panal de 7 celdas con miel a distintos niveles. La misma geometría está en public/marca/*.svg y app/icon.svg.
 const R = 9.6, r = 8.9, W = Math.sqrt(3) * R, DY = 1.5 * R, C = 32;
 const hex = (x, y) => "M" + [0, 1, 2, 3, 4, 5].map((i) => {
   const a = (Math.PI / 180) * (60 * i - 90);
@@ -12,8 +11,6 @@ const CELDAS = [
   [C - W, C, 1], [C + W, C, 0.66],
   [C - W / 2, C + DY, 1], [C + W / 2, C + DY, 1],
 ];
-const ZUMBIDO = [[-5.2, 3.2], [-2.6, 6.4], [0, 9.6], [2.6, 6.4], [5.2, 3.2]]
-  .map(([dx, h]) => `M${C + dx} ${C - h / 2}v${h}`).join("");
 
 export default function Logo({ tam = 36, titulo }) {
   const id = useId().replace(/:/g, "");
@@ -36,7 +33,6 @@ export default function Logo({ tam = 36, titulo }) {
       <g fill="none" stroke="var(--logo-trazo)" strokeWidth="1.6" strokeLinejoin="round">
         {CELDAS.map(([x, y], i) => <path key={i} d={hex(x, y)} />)}
       </g>
-      <path d={ZUMBIDO} stroke="var(--logo-zumbido)" strokeWidth="1.9" strokeLinecap="round" />
     </svg>
   );
 }
