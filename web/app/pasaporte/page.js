@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { QRCodeCanvas } from "qrcode.react";
 import { post, useApi } from "@/lib/api";
 import { FLORES } from "@/lib/textos";
-import { Cargando, Chip, IconoEstado, claseEstado, fecha } from "@/components/ui";
+import { Cargando, Chip, IconoEstado, fecha } from "@/components/ui";
 import { BotonWhatsApp } from "@/components/Acciones";
+import Icono from "@/components/Icono";
+import Pasaporte from "@/components/Pasaporte";
 
 export default function MiMiel() {
   const { datos, error, recargar } = useApi("/colmenas", 0);
@@ -47,11 +48,10 @@ export default function MiMiel() {
   }
 
   const url = creado && typeof window !== "undefined" ? `${window.location.origin}/pasaporte/${creado.pasaporte_id}` : "";
-  const apto = creado?.dictamen === "APTO";
 
   return (
     <>
-      <h1>🍯 Certificado de mi miel</h1>
+      <h1>Certificado de mi miel</h1>
       <p className="sub">
         Demuestra al comprador de dónde viene tu miel y que tu apiario no fue fumigado. Así puedes pedir mejor precio.
       </p>
@@ -61,7 +61,10 @@ export default function MiMiel() {
         {datos.apiarios.map((a) => (
           <button key={a.apiario_id} className="opcion" role="radio" aria-checked={elegido === a.apiario_id}
             onClick={() => setApiario(a.apiario_id)}>
-            <span style={{ fontSize: "1.6rem" }} aria-hidden="true">{elegido === a.apiario_id ? "🔘" : "⚪"}</span>
+            <svg width="28" height="30" viewBox="0 0 24 26" aria-hidden="true" style={{ flex: "none" }}>
+              <path d="M12 1.5l10 5.8v11.4L12 24.5 2 18.7V7.3z" fill="none" stroke={elegido === a.apiario_id ? "var(--miel-profunda)" : "var(--cera-3)"} strokeWidth="2" />
+              {elegido === a.apiario_id && <path d="M12 7l5.2 3v6L12 19l-5.2-3v-6z" fill="var(--miel)" />}
+            </svg>
             <span style={{ flex: 1 }}><b>{a.nombre}</b><small>{a.municipio} · {a.colmenas.length} colmenas</small></span>
             <Chip estado={a.estado} />
           </button>
@@ -77,33 +80,24 @@ export default function MiMiel() {
 
       <h2>3. ¿De qué flor?</h2>
       <div className="fichas" role="group" aria-label="Flor">
-        {FLORES.map((f) => <button key={f} className="ficha" aria-pressed={flor === f} onClick={() => setFlor(f)}>🌼 {f}</button>)}
+        {FLORES.map((f) => <button key={f} className="ficha" aria-pressed={flor === f} onClick={() => setFlor(f)}><Icono nombre="flor" tam={20} />{f}</button>)}
       </div>
 
       <h2>4. ¿Cuándo la cosechaste?</h2>
       <input type="date" value={cosecha} onChange={(e) => setCosecha(e.target.value)} aria-label="Fecha de cosecha" />
 
       <button className="boton primario ancho" style={{ marginTop: 20 }} disabled={ocupado || !elegido} onClick={crear}>
-        <span className="emoji" aria-hidden="true">✍️</span>{ocupado ? "Creando y firmando…" : elegido ? "Crear el certificado" : "Primero elige tu apiario"}
+        <Icono nombre="sello" />{ocupado ? "Creando y firmando…" : elegido ? "Crear el certificado" : "Primero elige tu apiario"}
       </button>
       {fallo && <div className="error">{fallo}</div>}
 
       {creado && (
         <section id="resultado" style={{ marginTop: 20, scrollMarginTop: 80 }}>
-          <div className={`dictamen ${claseEstado(apto ? "sana" : "critica")}`}>
-            <div className="emoji" aria-hidden="true">{apto ? "🍯" : "⛔"}</div>
-            <div className="grande">{apto ? "Miel apta" : "No apta"}</div>
-            <p style={{ margin: "8px 0 0" }}>{creado.sobre.documento.motivos.join(" · ")}</p>
-          </div>
-          <div className="tarjeta" style={{ marginTop: 12, textAlign: "center" }}>
-            <p style={{ marginTop: 0 }}><b>El comprador escanea este código</b> con la cámara de su teléfono:</p>
-            <div className="qr" ref={qr}><QRCodeCanvas value={url} size={220} marginSize={2} /></div>
-            <p className="chico">{creado.pasaporte_id}</p>
-          </div>
+          <Pasaporte documento={creado.sobre.documento} url={url} qrRef={qr} />
           <div className="acciones">
-            <BotonWhatsApp texto={`🍯 Certificado de mi miel (${creado.dictamen}) – KAB Centinela: ${url}`} etiqueta="Mandar al comprador" />
-            <button className="boton" onClick={descargarQR}><span className="emoji" aria-hidden="true">⬇️</span>Guardar el código</button>
-            <Link className="boton" href={`/pasaporte/${creado.pasaporte_id}`}><span className="emoji" aria-hidden="true">👀</span>Ver como el comprador</Link>
+            <BotonWhatsApp texto={`Certificado de mi miel (${creado.dictamen}) – KAB Centinela: ${url}`} etiqueta="Mandar al comprador" />
+            <button className="boton" onClick={descargarQR}><Icono nombre="descargar" />Guardar el código</button>
+            <Link className="boton" href={`/pasaporte/${creado.pasaporte_id}`}><Icono nombre="ojo" />Ver como el comprador</Link>
           </div>
         </section>
       )}
@@ -114,7 +108,7 @@ export default function MiMiel() {
           <div className="pila">
             {lista.pasaportes.map((p) => (
               <Link key={p.doc_id} href={`/pasaporte/${p.doc_id}`} className="tarjeta" style={{ display: "flex", gap: 12, alignItems: "center", textDecoration: "none" }}>
-                <IconoEstado estado={p.dictamen === "APTO" ? "sana" : "critica"} tam={36} />
+                <IconoEstado estado={p.dictamen === "APTO" ? "sana" : "critica"} titulo="" tam={36} />
                 <span style={{ flex: 1 }}><b>{p.dictamen === "APTO" ? "Miel apta" : "No apta"}</b> · {p.apiario_id}<div className="chico">{fecha(p.creado)}</div></span>
                 <span aria-hidden="true">›</span>
               </Link>

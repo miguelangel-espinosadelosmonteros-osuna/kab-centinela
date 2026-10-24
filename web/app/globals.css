@@ -335,6 +335,39 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 }
 @media print { .escritorio { background: none; padding: 0; } .papel { box-shadow: none; background-image: none; } }
 
+/* ---------- pasaporte del lote */
+.pasaporte-zona { display: grid; gap: 14px; justify-items: center; }
+.pasaporte { width: min(100%, 360px); aspect-ratio: 5 / 7; perspective: 1400px; }
+.pasaporte .hoja { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.pasaporte .cara {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px; overflow: hidden;
+  padding: 22px 20px; display: grid; gap: 12px; align-content: start;
+}
+.pasaporte .frente { background: color-mix(in srgb, var(--madera) 72%, #3a2414); color: #fbf4e4; grid-template-rows: auto auto auto 1fr; }
+.pasaporte .frente::before {
+  content: ""; position: absolute; inset: 0; opacity: .12; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='58.9'%3E%3Cpath d='M17 0 34 9.8v19.6L17 39.3 0 29.4V9.8zM17 39.3v19.6' fill='none' stroke='%23F2C94C' stroke-width='1.2'/%3E%3C/svg%3E");
+}
+.pasaporte .frente > * { position: relative; }
+.pasaporte .frente .ceja { color: #f2c94c; }
+.pasaporte .frente h2 { margin: 0; font-size: 1.55rem; line-height: 1.15; }
+.pasaporte .frente dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: .92rem; }
+.pasaporte .frente dt { color: #e4d2aa; }
+.pasaporte .frente dd { margin: 0; font-weight: 700; min-width: 0; }
+.pasaporte .vuelta { background: var(--papel); color: var(--propoleo); transform: rotateY(180deg); justify-items: center; align-content: center; text-align: center; border: 1px solid var(--cera-3); }
+.pasaporte .plano .cara { transform: none; transition: opacity .25s linear, visibility .25s linear; }
+.dictamen-sello {
+  align-self: end; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 12px 18px; background: #fbf4e4; color: #3a2414;
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+}
+.dictamen-sello b { font-family: var(--f-titulo), Georgia, serif; font-size: 1.6rem; line-height: 1; display: block; }
+.dictamen-sello small { font-size: .8rem; }
+.dictamen-sello.apto { --c: #4b6a2c; --sobre-estado: #fff; }
+.dictamen-sello.no-apto { --c: #a63c29; --sobre-estado: #fff; }
+.dictamen-sello b { color: var(--c); }
+.verificar { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 14px 16px; background: var(--cera-2); border-radius: var(--radio); }
+.verificar b { display: block; font-size: 1.1rem; }
+
 /* ---------- cargas: la celda se llena de miel */
 .cargando { display: grid; justify-items: center; gap: 10px; padding: 32px 0; color: var(--propoleo-2); font-weight: 700; }
 .miel-sube { animation: subir 1.8s var(--curva-miel) infinite; }
