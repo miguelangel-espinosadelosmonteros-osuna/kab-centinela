@@ -1,4 +1,4 @@
-# KAB Centinela 🐝
+# KAB 🐝
 
 **La colmena que escucha:** detecta en minutos el envenenamiento de abejas por plaguicidas, avisa al apicultor y guarda una prueba que nadie puede borrar.
 
