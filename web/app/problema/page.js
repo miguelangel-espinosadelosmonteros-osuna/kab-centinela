@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Icono from "@/components/Icono";
 import Abeja from "@/components/Abeja";
+import FondoPortada from "@/components/FondoPortada";
 import Logo from "@/components/Logo";
 
 // Datos del problema con su fuente. Revisados el 24 oct 2026; cada cifra se atribuye a quien la publicó.
@@ -88,6 +89,7 @@ export default function Problema() {
   return (
     <>
       <header className="portada">
+        <FondoPortada />
         <Abeja />
         <div className="marca-portada"><Logo tam={72} /><span className="ceja">Tekax · Peto · Yucatán</span></div>
         <h1>KAB <em>Centinela</em></h1>
