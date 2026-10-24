@@ -7,13 +7,16 @@ import { api, post, useApi } from "@/lib/api";
 import { problema } from "@/lib/textos";
 import { Cargando, IconoEstado, claseEstado, fecha, num } from "@/components/ui";
 import { BotonEscuchar, BotonWhatsApp, urlActual } from "@/components/Acciones";
+import Icono from "@/components/Icono";
+import Lacre from "@/components/Lacre";
+import FirmaEscrita from "@/components/FirmaEscrita";
 
 function Veredicto({ v }) {
   if (!v) return null;
   const ok = v.valida;
   return (
     <div className={`veredicto ${claseEstado(ok ? "sana" : "critica")}`} role="status">
-      <IconoEstado estado={ok ? "sana" : "critica"} />
+      <IconoEstado estado={ok ? "sana" : "critica"} titulo="" />
       <div>
         {ok ? "Es auténtica: nadie la ha cambiado desde que se guardó." : "¡Cuidado! Esta prueba fue cambiada: ya no vale."}
         <div className="chico" style={{ fontWeight: 400 }}>{v.motivo}</div>
@@ -30,6 +33,7 @@ export default function Prueba() {
   const [tecnico, setTecnico] = useState(null);
   const [ocupado, setOcupado] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [tecnicos, setTecnicos] = useState(false);
 
   useEffect(() => {
     if (datos) setTexto(JSON.stringify(datos.expediente.sobre.documento, null, 2));
@@ -63,17 +67,25 @@ export default function Prueba() {
   return (
     <>
       <Link href="/expedientes" className="volver">← Todas las pruebas</Link>
-      <h1>{p.emoji} Prueba de {p.titulo.toLowerCase()}</h1>
+      <h1>Prueba de {p.titulo.toLowerCase()}</h1>
       <p className="sub">Colmena {doc.ubicacion.colmena_id} · {doc.ubicacion.apiario_nombre}, {doc.ubicacion.municipio}</p>
 
       <button className="boton primario ancho" disabled={ocupado}
         onClick={() => correr(() => api(`/expedientes/${id}/verificar`), setResultado)}>
-        <span className="emoji" aria-hidden="true">🔍</span>{ocupado ? "Comprobando…" : "Comprobar que es auténtica"}
+        <Icono nombre="lupa" />{ocupado ? "Comprobando…" : "Comprobar que es auténtica"}
       </button>
       <div style={{ marginTop: 12 }}><Veredicto v={resultado} /></div>
 
       <h2>Qué pasó</h2>
-      <div className="tarjeta">
+      <div className="escritorio">
+        <article className="papel">
+          <Lacre />
+          <header className="membrete">
+            <span className="ceja">Expediente de {p.titulo.toLowerCase()}</span>
+            <h3 style={{ margin: "4px 0 0" }}>Colmena <span style={{ whiteSpace: "nowrap" }}>{doc.ubicacion.colmena_id}</span></h3>
+            <div className="chico">{doc.ubicacion.apiario_nombre}, {doc.ubicacion.municipio}</div>
+            <span className="dato chico" style={{ wordBreak: "break-all" }}>{e.doc_id}</span>
+          </header>
         <table className="tabla">
           <tbody>
             <tr><th>Cuándo</th><td>{fecha(doc.alerta.detectada_en)}</td></tr>
@@ -82,9 +94,11 @@ export default function Prueba() {
             {m.caida_peso_kg !== undefined && <tr><th>Peso</th><td>Perdió {num(m.caida_peso_kg, 2)} kg</td></tr>}
             {m.apiarios && <tr><th>Apiarios afectados</th><td>{m.apiarios.join(", ")} (a {num(m.distancia_max_km, 1)} km o menos)</td></tr>}
             <tr><th>Lecturas guardadas</th><td>{doc.lecturas_sensor?.length || 0} del sensor</td></tr>
-            <tr><th>Protegida</th><td>🔒 Nadie la puede borrar ni cambiar hasta {fecha(e.s3?.retencion_hasta)}</td></tr>
+            <tr><th>Protegida</th><td>Nadie la puede borrar ni cambiar hasta {fecha(e.s3?.retencion_hasta)}</td></tr>
           </tbody>
         </table>
+          <span className="inmutable"><Icono nombre="candado" tam={18} grosor={2} />Inmutable: S3 Object Lock</span>
+        </article>
       </div>
 
       <h2>Texto para la denuncia</h2>
@@ -94,25 +108,25 @@ export default function Prueba() {
       </div>
       <div className="acciones">
         <BotonEscuchar texto={e.narrativa} etiqueta="Escuchar el texto" />
-        <button className="boton" onClick={copiar}><span className="emoji" aria-hidden="true">📋</span>{copiado ? "¡Copiado!" : "Copiar el texto"}</button>
-        <BotonWhatsApp texto={`🛡️ Prueba de ${p.titulo.toLowerCase()} – KAB Centinela: ${urlActual()}`} etiqueta="Mandar por WhatsApp" />
-        <button className="boton" onClick={() => window.print()}><span className="emoji" aria-hidden="true">🖨️</span>Imprimir o guardar PDF</button>
+        <button className="boton" onClick={copiar}><Icono nombre="copiar" />{copiado ? "¡Copiado!" : "Copiar el texto"}</button>
+        <BotonWhatsApp texto={`Prueba de ${p.titulo.toLowerCase()} – KAB Centinela: ${urlActual()}`} etiqueta="Mandar por WhatsApp" />
+        <button className="boton" onClick={() => window.print()}><Icono nombre="imprimir" />Imprimir o guardar PDF</button>
       </div>
 
-      <details className="tarjeta" style={{ marginTop: 20 }}>
+      <details className="tarjeta" style={{ marginTop: 20 }} onToggle={(ev) => setTecnicos(ev.currentTarget.open)}>
         <summary>Para técnicos y jueces: cómo se protege</summary>
         <table className="tabla">
           <tbody>
             <tr><th>Guardado en</th><td style={{ wordBreak: "break-all" }}>Amazon S3 con Object Lock ({e.s3?.retencion_modo}): s3://{e.s3?.bucket}/{e.s3?.key}</td></tr>
             <tr><th>Versión</th><td style={{ wordBreak: "break-all" }}>{e.s3?.version_id}</td></tr>
             <tr><th>Firma</th><td>{e.sobre.firma.algoritmo} con AWS KMS (llave P-256 que nunca sale de AWS)</td></tr>
-            <tr><th>Huella SHA-256</th><td style={{ wordBreak: "break-all" }}>{e.sobre.firma.digest_sha256}</td></tr>
+            <tr><th>Huella SHA-256</th><td><FirmaEscrita texto={e.sobre.firma.digest_sha256} activa={tecnicos} /></td></tr>
             <tr><th>Narrativa</th><td>{e.narrativa_fuente}</td></tr>
           </tbody>
         </table>
         <h3 style={{ marginTop: 14 }}>Prueba: cambia un dato y verás que la firma falla</h3>
         <div className="acciones">
-          <button className="boton" onClick={alterar}>✏️ Alterar un dato</button>
+          <button className="boton" onClick={alterar}><Icono nombre="lapiz" />Alterar un dato</button>
           <button className="boton primario" disabled={ocupado}
             onClick={() => correr(() => post("/verificar", { sobre: { documento: JSON.parse(texto), firma: e.sobre.firma } }), setTecnico)}>
             Comprobar este documento

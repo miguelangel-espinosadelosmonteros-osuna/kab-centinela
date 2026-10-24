@@ -311,6 +311,30 @@ textarea { font-family: var(--f-dato), ui-monospace, monospace; font-size: 0.75r
 pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; background: var(--cera); padding: 10px; border-radius: 8px; }
 .error { background: var(--alerta-fondo); border-left: 6px solid var(--alerta); padding: 12px 14px; border-radius: 0 8px 8px 0; margin: 12px 0; font-weight: 700; }
 
+/* ---------- expediente: papel, lacre y firma */
+.escritorio { background: color-mix(in srgb, var(--madera) 18%, var(--cera-2)); border-radius: var(--radio); padding: 14px; }
+.papel {
+  position: relative; background-color: var(--papel); color: var(--propoleo); padding: 20px 18px;
+  box-shadow: 0 1px 0 var(--cera-3), 0 14px 30px -18px rgb(58 36 20 / 0.45); display: grid; gap: 12px;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, color-mix(in srgb, var(--miel) 14%, transparent) 31px 32px);
+}
+.papel .membrete { border-bottom: 2px solid var(--propoleo); padding: 0 78px 10px 0; min-height: 84px; }
+.papel .tabla th, .papel .tabla td { border-bottom-color: color-mix(in srgb, var(--miel) 22%, transparent); }
+.lacre { position: absolute; right: 8px; top: 8px; width: 72px; height: 78px; filter: drop-shadow(0 3px 2px rgb(40 10 5 / 0.35)); }
+.lacre svg { width: 100%; height: 100%; }
+.inmutable {
+  display: inline-flex; gap: 8px; align-items: center; justify-self: start; padding: 6px 16px 6px 12px; background: var(--propoleo); color: var(--cera);
+  font-weight: 700; font-size: .85rem; clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 9px 100%, 0 50%);
+}
+.firma { display: block; font-size: .78rem; word-break: break-all; min-height: 2.6em; }
+.cursor { display: inline-block; width: .55em; height: 1em; background: var(--miel); vertical-align: -0.15em; animation: parpadeo 1s steps(1) infinite; }
+@keyframes parpadeo { 50% { opacity: 0; } }
+@media (min-width: 560px) {
+  .escritorio { padding: 28px; } .papel { padding: 32px; }
+  .papel .membrete { padding-right: 110px; } .lacre { width: 96px; height: 104px; right: 20px; top: 16px; }
+}
+@media print { .escritorio { background: none; padding: 0; } .papel { box-shadow: none; background-image: none; } }
+
 /* ---------- cargas: la celda se llena de miel */
 .cargando { display: grid; justify-items: center; gap: 10px; padding: 32px 0; color: var(--propoleo-2); font-weight: 700; }
 .miel-sube { animation: subir 1.8s var(--curva-miel) infinite; }

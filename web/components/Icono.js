@@ -114,7 +114,7 @@ export const ICONOS = {
 /** <Icono nombre="abeja" />. Con `titulo` se anuncia al lector de pantalla; sin él es decorativo. */
 export default function Icono({ nombre, tam = 24, titulo, className, grosor = 1.75 }) {
   return (
-    <svg viewBox="0 0 24 24" width={tam} height={tam} className={className} fill="none" stroke="currentColor"
+    <svg viewBox="0 0 24 24" width={tam} height={tam} className={className} style={{ flex: "none" }} fill="none" stroke="currentColor"
       strokeWidth={grosor} strokeLinecap="round" strokeLinejoin="round"
       role={titulo ? "img" : undefined} aria-label={titulo} aria-hidden={titulo ? undefined : true} focusable="false">
       {ICONOS[nombre] ?? ICONOS.celda}
