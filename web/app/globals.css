@@ -448,3 +448,6 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
   .trazo-check { animation: none; stroke-dashoffset: 0; }
   .boton:active { transform: none; }
 }
+
+/* Palabras o códigos largos (folios, huellas, "envenenamiento" en títulos grandes) no deben salirse de la pantalla */
+h1, h2, h3, p, li, td, th, strong, .narrativa { overflow-wrap: break-word; hyphens: auto; }
