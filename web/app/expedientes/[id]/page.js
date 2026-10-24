@@ -109,7 +109,7 @@ export default function Prueba() {
       <div className="acciones">
         <BotonEscuchar texto={e.narrativa} etiqueta="Escuchar el texto" />
         <button className="boton" onClick={copiar}><Icono nombre="copiar" />{copiado ? "¡Copiado!" : "Copiar el texto"}</button>
-        <BotonWhatsApp texto={`Prueba de ${p.titulo.toLowerCase()} – KAB Centinela: ${urlActual()}`} etiqueta="Mandar por WhatsApp" />
+        <BotonWhatsApp texto={`Prueba de ${p.titulo.toLowerCase()} – Kaab: ${urlActual()}`} etiqueta="Mandar por WhatsApp" />
         <button className="boton" onClick={() => window.print()}><Icono nombre="imprimir" />Imprimir o guardar PDF</button>
       </div>
 

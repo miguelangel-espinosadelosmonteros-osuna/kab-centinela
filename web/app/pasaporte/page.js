@@ -95,7 +95,7 @@ export default function MiMiel() {
         <section id="resultado" style={{ marginTop: 20, scrollMarginTop: 80 }}>
           <Pasaporte documento={creado.sobre.documento} url={url} qrRef={qr} />
           <div className="acciones">
-            <BotonWhatsApp texto={`Certificado de mi miel (${creado.dictamen}) – KAB Centinela: ${url}`} etiqueta="Mandar al comprador" />
+            <BotonWhatsApp texto={`Certificado de mi miel (${creado.dictamen}) – Kaab: ${url}`} etiqueta="Mandar al comprador" />
             <button className="boton" onClick={descargarQR}><Icono nombre="descargar" />Guardar el código</button>
             <Link className="boton" href={`/pasaporte/${creado.pasaporte_id}`}><Icono nombre="ojo" />Ver como el comprador</Link>
           </div>

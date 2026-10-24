@@ -1,4 +1,4 @@
-// Íconos de KAB Centinela (nada de emojis): 24x24, trazo 1.75, puntas redondas.
+// Íconos de Kaab (nada de emojis): 24x24, trazo 1.75, puntas redondas.
 // Cada uno es una lista de elementos SVG; el componente pone el trazo y el tamaño.
 
 const HEX = "M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z";

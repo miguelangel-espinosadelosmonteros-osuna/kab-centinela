@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  KAB Centinela - la colmena que escucha. IoT Core, Lambda, DynamoDB, EventBridge,
+  Kaab - la colmena que escucha. IoT Core, Lambda, DynamoDB, EventBridge,
   SNS, KMS, S3 Object Lock, Bedrock y API Gateway.
 
 Parameters:
@@ -120,7 +120,7 @@ Resources:
   TopicAlertas:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: KAB
+      DisplayName: Kaab
 
   SuscripcionCorreo:
     Type: AWS::SNS::Subscription
@@ -145,7 +145,7 @@ Resources:
   LlaveFirma:
     Type: AWS::KMS::Key
     Properties:
-      Description: KAB Centinela - firma ECDSA P-256 de expedientes y pasaportes
+      Description: Kaab - firma ECDSA P-256 de expedientes y pasaportes
       KeySpec: ECC_NIST_P256
       KeyUsage: SIGN_VERIFY
       PendingWindowInDays: 7

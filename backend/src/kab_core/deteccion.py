@@ -1,4 +1,4 @@
-"""Reglas de alerta de KAB Centinela (Rol 3).
+"""Reglas de alerta de Kaab (Rol 3).
 
 Cada regla recibe la lectura actual y el historial reciente de la MISMA colmena
 y decide si hay alerta. Son funciones puras: no tocan AWS, así se prueban en local.
@@ -121,6 +121,7 @@ UMBRALES = {
     "hambruna_min_lecturas": 6,
     "hambruna_pendiente_kg_dia": -0.25,
     "hambruna_salto_max_kg": 1.0,
+    "hambruna_caida_reciente_max_kg": 0.5,
     # Ausencia de reina ("rugido" agudo sostenido)
     "reina_hz": 350.0,
     "reina_ventana_min": 120,
@@ -144,7 +145,7 @@ UMBRALES = {
 # Cuánto tiempo sigue "activa" una alerta (y no se repite el aviso)
 VIGENCIA_MIN = {"critica": 24 * 60, "alta": 180, "media": 360, "baja": 360}
 # Los problemas lentos duran días: no se repite el aviso cada pocas horas
-VIGENCIA_TIPO_MIN = {HAMBRUNA: 72 * 60, VARROA: 72 * 60, SEQUIA: 12 * 60, BATERIA_BAJA: 24 * 60}
+VIGENCIA_TIPO_MIN = {HAMBRUNA: 72 * 60, VARROA: 72 * 60, SEQUIA: 12 * 60, BATERIA_BAJA: 72 * 60}
 
 
 # ---------------------------------------------------------------- utilidades
@@ -302,6 +303,9 @@ def regla_hambruna(lec, hist, u):
     salto_max = max((a - b for a, b in zip(pesos, pesos[1:])), default=0)
     if salto_max > u["hambruna_salto_max_kg"]:
         return None  # caída brusca: cosecha o enjambre, no hambruna
+    hace_6h = [l["peso_kg"] for edad, l in hist if edad >= 360]
+    if hace_6h and hace_6h[-1] - lec["peso_kg"] > u["hambruna_caida_reciente_max_kg"]:
+        return None  # perdió mucho en pocas horas (envenenamiento, enjambre): la hambruna es lenta
     pendiente = _pendiente([d for d, _ in puntos], pesos)
     if pendiente <= u["hambruna_pendiente_kg_dia"]:
         dias = -puntos[0][0]

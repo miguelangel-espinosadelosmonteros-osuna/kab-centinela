@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Revisa que la cuenta de AWS tenga acceso a los 9 servicios de KAB Centinela.
+# Revisa que la cuenta de AWS tenga acceso a los 9 servicios de Kaab.
 # Uso: ./scripts/revisar_aws.sh [region]
 REGION="${1:-${AWS_REGION:-us-east-1}}"
 ok()   { printf "  \033[92m✔\033[0m %-22s %s\n" "$1" "$2"; }

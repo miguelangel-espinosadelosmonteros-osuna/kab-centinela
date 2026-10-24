@@ -36,8 +36,8 @@ def mensajes_alerta(a: dict):
     if a.get("municipio"):
         lugar += f" ({a['municipio']})"
     link = _link(f"/colmenas/{a['colmena_id']}")
-    asunto = f"KAB Centinela [{a['severidad'].upper()}] {a['titulo']} - {a['colmena_id']}"
-    corto = f"KAB: {a['titulo']} en {a['colmena_id']} {lugar}. {a['mensaje']} {link}".strip()
+    asunto = f"Kaab [{a['severidad'].upper()}] {a['titulo']} - {a['colmena_id']}"
+    corto = f"Kaab: {a['titulo']} en {a['colmena_id']} {lugar}. {a['mensaje']} {link}".strip()
     largo = "\n".join(filter(None, [
         f"{a['titulo']} ({a['severidad']})",
         f"Colmena: {a['colmena_id']} · Apiario: {lugar}",
@@ -53,8 +53,8 @@ def mensajes_alerta(a: dict):
 
 def mensajes_expediente(d: dict):
     link = _link(f"/expedientes/{d['expediente_id']}")
-    asunto = f"KAB Centinela: expediente firmado {d['expediente_id']}"
-    corto = f"KAB: expediente firmado {d['expediente_id']} listo para denuncia. {link}".strip()
+    asunto = f"Kaab: expediente firmado {d['expediente_id']}"
+    corto = f"Kaab: expediente firmado {d['expediente_id']} listo para denuncia. {link}".strip()
     largo = "\n".join(filter(None, [
         f"Se generó el expediente {d['expediente_id']} para la colmena {d.get('colmena_id')}.",
         f"Firmado con AWS KMS ({d.get('algoritmo')}), guardado en S3 con Object Lock "

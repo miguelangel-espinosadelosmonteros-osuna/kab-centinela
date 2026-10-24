@@ -1,4 +1,4 @@
-"""Simulador de colmenas de KAB Centinela (Rol 2).
+"""Simulador de colmenas de Kaab (Rol 2).
 
 Modos:
   --modo local   corre la detección en esta computadora (plan B sin internet)
@@ -16,6 +16,7 @@ Ejemplos:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import csv
 import json
 import math
@@ -68,7 +69,7 @@ def efecto(escenario: str, lec: dict, k: int, colmena_id: str):
         lec["temp_ext_c"] = min(39.0, lec["temp_ext_c"] + 3.0 * (k + 1))
     elif escenario == "hambruna":
         # sin floración: no hay ganancia de néctar y la colonia gasta ~0.4 kg/día de reservas
-        lec["peso_kg"] -= 0.22 * (k + 1)
+        lec["peso_kg"] -= 0.075 * (k + 1)
     elif escenario == "sin_reina":
         lec["sonido_hz"] = 385.0 + random.uniform(0, 25)
         lec["sonido_db"] += 2.0
@@ -84,12 +85,29 @@ def efecto(escenario: str, lec: dict, k: int, colmena_id: str):
         lec["sonido_db"] -= min(8.0, 0.35 * k)
 
 
+# Clima de la Península de Yucatán en octubre: fin de lluvias y época de escasez de flores.
+TEMPORADA = {
+    "crecimiento_kg_dia": -0.05,  # sin floración fuerte, una colmena sana casi no gana peso
+    "temp_ext_media": 27.5, "temp_ext_amplitud": 4.5,  # de ~23 °C de madrugada a ~32 °C a mediodía
+    "humedad_media": 80.0, "humedad_amplitud": 12.0,   # húmedo, más en la madrugada
+}
+
+
+def _rasgo(colmena_id: str, clave: str, minimo: float, maximo: float) -> float:
+    """Un valor fijo por colmena (cada colmena suena y pesa distinto, pero igual en cada corrida)."""
+    h = int(hashlib.md5(f"{colmena_id}:{clave}".encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
+    return minimo + h * (maximo - minimo)
+
+
 def lectura_sana(c: dict, ts: datetime, tick: int, min_tick: int, sesion: str) -> dict:
+    t = TEMPORADA
     hora = (ts.hour - 6) % 24  # hora local de Yucatán (UTC-6)
     ciclo = math.sin((hora - 6) / 24 * 2 * math.pi)  # +1 a mediodía, -1 de madrugada
-    crecimiento = 0.02 * tick * min_tick / 60  # floración: +0.5 kg/día aprox.
+    de_dia = max(0.0, ciclo)  # las pecoreadoras salen de día y la colmena pesa un poco menos
+    dias = tick * min_tick / 1440
+    cid = c["colmena_id"]
     return {
-        "colmena_id": c["colmena_id"],
+        "colmena_id": cid,
         "apiario_id": c["apiario_id"],
         "apiario_nombre": c["apiario_nombre"],
         "municipio": c["municipio"],
@@ -97,13 +115,13 @@ def lectura_sana(c: dict, ts: datetime, tick: int, min_tick: int, sesion: str) -
         "lat": c["lat"],
         "lon": c["lon"],
         "ts": ts.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "peso_kg": c["peso_kg"] + crecimiento + random.uniform(-0.05, 0.05),
-        "temp_int_c": 34.8 + random.uniform(-0.3, 0.3),
-        "temp_ext_c": 29.0 + 4.0 * ciclo + random.uniform(-0.5, 0.5),
-        "humedad_pct": 68.0 - 10.0 * ciclo + random.uniform(-2, 2),
-        "sonido_db": 72.0 + 2.0 * ciclo + random.uniform(-0.8, 0.8),
-        "sonido_hz": 250.0 + random.uniform(-15, 15),
-        "bateria_pct": c.get("bateria_pct") or max(20.0, 95.0 - tick * 0.05),
+        "peso_kg": c["peso_kg"] + t["crecimiento_kg_dia"] * dias - 0.3 * de_dia + random.uniform(-0.04, 0.04),
+        "temp_int_c": 34.9 + random.uniform(-0.25, 0.25),
+        "temp_ext_c": t["temp_ext_media"] + t["temp_ext_amplitud"] * ciclo + random.uniform(-0.6, 0.6),
+        "humedad_pct": min(98.0, t["humedad_media"] - t["humedad_amplitud"] * ciclo + random.uniform(-3, 3)),
+        "sonido_db": _rasgo(cid, "db", 68, 75) + 2.5 * ciclo + random.uniform(-0.7, 0.7),
+        "sonido_hz": _rasgo(cid, "hz", 225, 275) + random.uniform(-12, 12),
+        "bateria_pct": c.get("bateria_pct") or max(20.0, _rasgo(cid, "bateria", 55, 100) - dias * 0.8),
         "sesion": sesion,
     }
 

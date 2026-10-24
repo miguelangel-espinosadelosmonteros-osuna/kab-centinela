@@ -119,3 +119,10 @@ def test_nueva_sesion_limpia_el_estado(sana):
 def test_frente_frio_no_es_varroa():
     hist = [lectura(i * 10, temp_int_c=34.8 - (1.2 * (i - 5) if i > 5 else 0), temp_ext_c=12.0) for i in range(14)]
     assert VARROA not in tipos(detectar(lectura(140, temp_int_c=27.0, temp_ext_c=11.0), hist))
+
+
+def test_colmena_envenenada_no_es_hambruna():
+    # 3 días estable y luego pierde 1.3 kg en las últimas horas (envenenamiento): no es hambruna
+    hist = [lectura(i * 360, peso_kg=42.0) for i in range(12)]
+    hist += [lectura(12 * 360 + i * 60, peso_kg=42.0 - 0.3 * i) for i in range(1, 5)]
+    assert HAMBRUNA not in tipos(detectar(lectura(12 * 360 + 300, peso_kg=40.7, sonido_db=72.0), hist))

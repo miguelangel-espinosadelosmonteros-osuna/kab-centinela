@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-// Logotipo de KAB Centinela: panal de 7 celdas con miel a distintos niveles. La misma geometría está en public/marca/*.svg y app/icon.svg.
+// Logotipo de Kaab: panal de 7 celdas con miel a distintos niveles. La misma geometría está en public/marca/*.svg y app/icon.svg.
 const R = 9.6, W = Math.sqrt(3) * R, DY = 1.5 * R;
 export const r = 8.9, C = 32;
 export const hex = (x, y) => "M" + [0, 1, 2, 3, 4, 5].map((i) => {

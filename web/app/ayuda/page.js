@@ -7,7 +7,7 @@ import Icono from "@/components/Icono";
 import { BotonEscuchar } from "@/components/Acciones";
 
 const GUIA =
-  "Bienvenido a KAB Centinela. Cada colmena tiene un sensor que la escucha, la pesa y mide su calor. " +
+  "Bienvenido a Kaab. Cada colmena tiene un sensor que la escucha, la pesa y mide su calor. " +
   "La celda verde con palomita quiere decir que está bien. La celda naranja quiere decir que hay que revisarla: " +
   "con reloj, en estos días; con signo de admiración, hoy. La celda roja es urgente. Si la celda está gris y punteada, el sensor no responde. Toca una colmena para ver qué le pasa y qué hacer. " +
   "Con el botón de la bocina, el teléfono te lee las instrucciones.";
@@ -22,7 +22,7 @@ export default function Ayuda() {
   return (
     <>
       <h1>¿Cómo se usa?</h1>
-      <p className="sub">KAB Centinela escucha, pesa y mide el calor de cada colmena, y te avisa si algo anda mal.</p>
+      <p className="sub">Kaab escucha, pesa y mide el calor de cada colmena, y te avisa si algo anda mal.</p>
       <BotonEscuchar texto={GUIA} etiqueta="Escuchar la explicación" />
 
       <h2>Qué significan los colores</h2>

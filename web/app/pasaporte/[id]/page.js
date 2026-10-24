@@ -24,7 +24,7 @@ export default function Certificado() {
 
   return (
     <>
-      <p className="ceja" style={{ marginTop: 12 }}>Certificado de miel · KAB Centinela</p>
+      <p className="ceja" style={{ marginTop: 12 }}>Certificado de miel · Kaab</p>
       <h1>{doc.apto ? "Miel apta" : "Miel no apta"}</h1>
       <p className="sub">
         {doc.apto ? "El apiario no tuvo envenenamientos en los últimos 60 días." : doc.motivos.join(" · ")}

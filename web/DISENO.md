@@ -1,4 +1,4 @@
-# Diseño de KAB Centinela
+# Diseño de Kaab
 
 Guía corta para que el tablero se vea como una sola marca. Prototipo vivo: https://claude.ai/artifact/PY2ewf2nNtizQdwHmNq1f2
 

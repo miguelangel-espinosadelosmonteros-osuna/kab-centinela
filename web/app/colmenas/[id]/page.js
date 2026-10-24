@@ -17,7 +17,7 @@ function Problema({ vigente, colmena, alerta }) {
   const lugar = `${colmena.apiario_nombre || colmena.apiario_id}${colmena.municipio ? `, ${colmena.municipio}` : ""}`;
   const leer = `${p.titulo}. Colmena ${colmena.colmena_id}, ${lugar}. ${p.explicacion} Qué hacer: ${p.pasos
     .map((paso, i) => `${i + 1}. ${paso}`).join(" ")}`;
-  const whatsapp = `KAB Centinela: ${p.titulo} en la colmena ${colmena.colmena_id} (${lugar}). ${p.corto} ${urlActual()}`;
+  const whatsapp = `Kaab: ${p.titulo} en la colmena ${colmena.colmena_id} (${lugar}). ${p.corto} ${urlActual()}`;
 
   return (
     <section className={`tarjeta ${claseEstado(estado)}`} style={{ borderLeft: "6px solid var(--c)", borderRadius: "0 var(--radio) var(--radio) 0" }}>

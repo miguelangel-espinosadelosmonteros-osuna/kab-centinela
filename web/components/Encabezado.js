@@ -10,9 +10,9 @@ export default function Encabezado() {
     <header className="encabezado">
       {MODO_DEMO && <div className="aviso-demo">Datos de muestra: esta pantalla todavía no está conectada a las colmenas.</div>}
       <div className="contenedor">
-        <Link href="/" className="marca" aria-label="KAB Centinela, inicio">
+        <Link href="/" className="marca" aria-label="Kaab, inicio">
           <Logo />
-          <span>KAB Centinela<small>Cuidamos tus colmenas</small></span>
+          <span>Kaab<small>Cuidamos tus colmenas</small></span>
         </Link>
         <Link href="/ayuda" className="boton-icono" aria-label="Ayuda"><Icono nombre="ayuda" /></Link>
       </div>

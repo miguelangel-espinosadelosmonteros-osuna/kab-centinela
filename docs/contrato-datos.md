@@ -1,6 +1,6 @@
 # Contrato de datos: lecturas de colmena
 
-Si generas datos para KAB Centinela, cada lectura debe tener este formato. Sirve para el simulador, para datos en archivo y para un sensor real.
+Si generas datos para Kaab, cada lectura debe tener este formato. Sirve para el simulador, para datos en archivo y para un sensor real.
 
 ## Una lectura
 

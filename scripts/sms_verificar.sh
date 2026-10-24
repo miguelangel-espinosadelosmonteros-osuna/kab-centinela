@@ -15,7 +15,7 @@ if [ -z "$CODIGO" ]; then
 fi
 
 aws sns verify-sms-sandbox-phone-number --phone-number "$TEL" --one-time-password "$CODIGO" --region "$REGION"
-aws sns set-sms-attributes --region "$REGION" --attributes DefaultSMSType=Transactional,DefaultSenderID=KABCENT
+aws sns set-sms-attributes --region "$REGION" --attributes DefaultSMSType=Transactional,DefaultSenderID=KAAB
 TOPIC=$(aws cloudformation describe-stacks --stack-name "$STACK" --region "$REGION" \
   --query "Stacks[0].Outputs[?OutputKey=='TopicAlertas'].OutputValue" --output text)
 aws sns subscribe --region "$REGION" --topic-arn "$TOPIC" --protocol sms --notification-endpoint "$TEL" \

@@ -92,10 +92,10 @@ export default function Problema() {
         <FondoPortada />
         <Abeja />
         <div className="marca-portada"><Logo tam={72} /><span className="ceja">Tekax · Peto · Yucatán</span></div>
-        <h1>KAB <em>Centinela</em></h1>
+        <h1>Kaab</h1>
         <p className="lema">La colmena que escucha.</p>
         <p className="entrada">
-          Cuando el apicultor llega al apiario ya no hay pruebas. KAB Centinela escucha cada colmena, avisa en
+          Cuando el apicultor llega al apiario ya no hay pruebas. Kaab escucha cada colmena, avisa en
           minutos y convierte los datos en evidencia firmada que nadie puede borrar.
         </p>
         <div className="cifras">

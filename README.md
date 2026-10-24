@@ -5,7 +5,7 @@
 - **Tablero en vivo (ábrelo en el celular):** https://kab-centinela.vercel.app
 - **Construido sobre AWS:** 9 servicios desplegados con infraestructura como código (AWS SAM).
 
-> *Kab* significa "abeja" y "miel" en maya.
+> *Kaab* significa "abeja" y "miel" en maya.
 
 ---
 
@@ -44,7 +44,7 @@ En la Península de Yucatán las abejas se están muriendo y casi nunca hay prue
 
 ## 2. La solución
 
-KAB Centinela pone en cada colmena un sensor que **la pesa, mide su calor y escucha su zumbido**. Con eso hace cuatro cosas:
+Kaab pone en cada colmena un sensor que **la pesa, mide su calor y escucha su zumbido**. Con eso hace cuatro cosas:
 
 | | Qué hace | Cómo lo ve el apicultor |
 | --- | --- | --- |
@@ -140,7 +140,7 @@ flowchart LR
 | --- | --- |
 | [`backend/`](backend/) | Infraestructura (AWS SAM) y las 5 Lambdas en Python. La lógica está separada en [`kab_core/`](backend/src/kab_core/) para probarla sin AWS: reglas de detección, firma, narrativa y certificado. |
 | [`backend/tests/`](backend/tests/) | 24 pruebas automáticas (pytest). |
-| [`simulador/`](simulador/) | Simula 7 colmenas de Tekax y Peto, o 14 colmenas de toda la región con un caso distinto cada una. Publica a IoT Core o corre todo en local, sin internet. |
+| [`simulador/`](simulador/) | Simula 7 colmenas de Tekax y Peto para la demo en vivo, o 32 colmenas realistas de 7 apiarios de Yucatán. Publica a IoT Core o corre todo en local, sin internet. |
 | [`web/`](web/) | Tablero en Next.js, desplegado en Vercel. Funciona también sin AWS, con datos de muestra. Guía visual en [`web/DISENO.md`](web/DISENO.md). |
 | [`video/`](video/) | Video de 15 s del pitch hecho con Remotion, con la misma marca y los datos de muestra del tablero ([`renders/kab-centinela.mp4`](video/renders/kab-centinela.mp4)). |
 | [`scripts/`](scripts/) | Revisar la cuenta de AWS, verificar teléfonos para SMS y limpiar los datos entre ensayos. |
@@ -238,10 +238,19 @@ python registrar_dispositivo.py --politica <PoliticaIoT>
 ```bash
 python simular_colmenas.py --modo iot --escenario normal --velocidad 0.5       # 7 colmenas sanas
 python simular_colmenas.py --modo iot --escenario fumigacion --velocidad 0.5   # la fumigación en vivo
-python simular_colmenas.py --modo iot --escenario mixto --velocidad 0          # 14 colmenas con 10 casos distintos
+python simular_colmenas.py --modo iot --escenario mixto --velocidad 0          # 32 colmenas realistas (la mayoría sanas)
 python simular_colmenas.py --modo iot --archivo mis_datos.jsonl                # tus propios datos
 ```
-Escenarios disponibles: `normal`, `fumigacion`, `frio`, `calor`, `sequia`, `hambruna`, `sin_reina`, `enjambrazon`, `varroa`, `todo` y `mixto`. Para limpiar los datos entre ensayos: `python ../scripts/reiniciar_demo.py`.
+Escenarios disponibles: `normal`, `fumigacion`, `frio`, `calor`, `sequia`, `hambruna`, `sin_reina`, `enjambrazon`, `varroa`, `todo` y `mixto`.
+
+**Datos de muestra (`mixto`).** Son 32 colmenas en 7 apiarios de Yucatán (Tekax, Peto, Tzucacab, Tizimín, Oxkutzcab y Tahdziú), con 50 horas de historia que terminan en el momento en que se corren. Simulan **octubre en la Península**: fin de lluvias (23 a 32 °C, humedad alta) y época de escasez de flores, en la que una colmena sana casi no gana peso. Cada colmena tiene su propio peso y su propio zumbido, y la mayoría (23 de 32) está bien. Los problemas son los que pasan en esta época:
+- una fumigación en Nohalal (5 colmenas);
+- hambruna por falta de flores (2);
+- una colmena sin reina;
+- una con varroa;
+- dos sensores con batería baja, uno de ellos caído.
+
+El golpe de calor, la sequía, el frío y los enjambres no aparecen porque no ocurren en octubre, pero se pueden mostrar con su propio escenario. Para limpiar los datos entre ensayos: `python ../scripts/reiniciar_demo.py`.
 
 **Paso 5. Publica el tablero.**
 ```bash

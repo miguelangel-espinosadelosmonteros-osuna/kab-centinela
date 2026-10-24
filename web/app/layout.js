@@ -10,7 +10,7 @@ const texto = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"]
 const dato = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--f-dato" });
 
 export const metadata = {
-  title: "KAB Centinela",
+  title: "Kaab",
   description: "La colmena que escucha: avisos de envenenamiento, calor, sequía y más, con pruebas que nadie puede borrar.",
 };
 

@@ -21,7 +21,7 @@ export default function Pasaporte({ documento: doc, url, qrRef, conQr = true }) 
 
   const frente = (oculta, extra) => (
     <div className="cara frente" aria-hidden={oculta} {...extra}>
-      <span className="ceja">Pasaporte del lote · KAB Centinela</span>
+      <span className="ceja">Pasaporte del lote · Kaab</span>
       <h2>{num(l.kg, 0)} kg de miel de {l.floracion}</h2>
       <dl>
         <dt>Apiario</dt><dd>{o.apiario_nombre || o.apiario_id}</dd>
