@@ -8,6 +8,8 @@ import { indicadores, tono } from "@/lib/indicadores";
 import { Cargando, Chip, IconoEstado, claseEstado, estadoDeSeveridad, fecha, hace, num } from "@/components/ui";
 import { BotonEscuchar, BotonLlamar, BotonWhatsApp, urlActual } from "@/components/Acciones";
 import Grafica from "@/components/Grafica";
+import Icono from "@/components/Icono";
+import Zumbido from "@/components/Zumbido";
 
 function Problema({ vigente, colmena, alerta }) {
   const p = problema(vigente.tipo);
@@ -15,12 +17,12 @@ function Problema({ vigente, colmena, alerta }) {
   const lugar = `${colmena.apiario_nombre || colmena.apiario_id}${colmena.municipio ? `, ${colmena.municipio}` : ""}`;
   const leer = `${p.titulo}. Colmena ${colmena.colmena_id}, ${lugar}. ${p.explicacion} Qué hacer: ${p.pasos
     .map((paso, i) => `${i + 1}. ${paso}`).join(" ")}`;
-  const whatsapp = `⚠️ KAB Centinela: ${p.titulo} en la colmena ${colmena.colmena_id} (${lugar}). ${p.corto} ${urlActual()}`;
+  const whatsapp = `KAB Centinela: ${p.titulo} en la colmena ${colmena.colmena_id} (${lugar}). ${p.corto} ${urlActual()}`;
 
   return (
-    <section className={`tarjeta ${claseEstado(estado)}`} style={{ borderLeft: "6px solid var(--c)" }}>
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <span style={{ fontSize: "2.6rem" }} aria-hidden="true">{p.emoji}</span>
+    <section className={`tarjeta ${claseEstado(estado)}`} style={{ borderLeft: "6px solid var(--c)", borderRadius: "0 var(--radio) var(--radio) 0" }}>
+      <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+        <span className="disco" aria-hidden="true"><Icono nombre={vigente.tipo} tam={30} grosor={1.9} /></span>
         <div>
           <Chip estado={estado} />
           <h2 style={{ margin: "6px 0 0" }}>{p.titulo}</h2>
@@ -36,7 +38,7 @@ function Problema({ vigente, colmena, alerta }) {
         <BotonLlamar />
         {p.prueba && (
           <Link className="boton primario" href={`/expedientes?colmena=${colmena.colmena_id}`}>
-            <span className="emoji" aria-hidden="true">🛡️</span>Ver la prueba para denunciar
+            <Icono nombre="escudo" />Ver la prueba para denunciar
           </Link>
         )}
       </div>
@@ -52,7 +54,8 @@ export default function Colmena() {
   const { colmena: c, lecturas, alertas } = datos;
   const lista = indicadores(lecturas);
   const ultima = lecturas.at(-1) || c.ultima_lectura || {};
-  const est = ESTADOS[c.estado] || ESTADOS.sana;
+  const visible = c.conectada === false ? "apagada" : c.estado;
+  const est = ESTADOS[visible] || ESTADOS.sana;
 
   return (
     <>
@@ -60,12 +63,15 @@ export default function Colmena() {
       <h1>Colmena {c.colmena_id}</h1>
       <p className="sub">{c.apiario_nombre} · {c.municipio}{c.apicultor ? ` · ${c.apicultor}` : ""}</p>
 
-      <div className={`banner ${claseEstado(c.estado)}`} role="status">
-        <IconoEstado estado={c.estado} />
+      <div className={`banner ${claseEstado(visible)}`} role="status">
+        <IconoEstado estado={visible} titulo="" />
         <div><strong>{est.palabra}</strong><span>{c.alertas_vigentes?.length ? est.frase : "Todo normal en esta colmena."}</span></div>
       </div>
       {c.conectada === false && (
-        <div className="tarjeta" style={{ marginTop: 12 }}>📡 <b>El sensor no responde.</b> Los datos de abajo son de la última vez que se comunicó.</div>
+        <div className="tarjeta" style={{ marginTop: 12, display: "flex", gap: 12, alignItems: "center" }}>
+          <Icono nombre="DESCONEXION" tam={32} />
+          <span><b>El sensor no responde.</b> Los datos de abajo son de la última vez que se comunicó.</span>
+        </div>
       )}
 
       {c.alertas_vigentes?.length > 0 && (
@@ -82,11 +88,13 @@ export default function Colmena() {
         {lista.map((ind) => (
           <section key={ind.clave} className="tarjeta indicador">
             <div className="cabeza">
-              <span className="etiqueta"><span className="emoji" aria-hidden="true">{ind.emoji}</span>{ind.etiqueta}</span>
+              <span className="etiqueta"><Icono nombre={ind.icono} />{ind.etiqueta}</span>
               <Chip estado={ind.estado} texto={ind.palabra} />
             </div>
-            <div className="valor">{num(ind.valor, ind.dec)} <small style={{ fontSize: "1rem" }}>{ind.unidad}</small></div>
-            <Grafica datos={ind.serie} banda={ind.banda} unidad={ind.unidad} dec={ind.dec} nombre={ind.etiqueta} />
+            <div className="valor">{num(ind.valor, ind.dec)} <small>{ind.unidad}</small></div>
+            {ind.clave === "zumbido" && <Zumbido db={ind.valor} hz={ultima.sonido_hz} base={(ind.banda[0] + ind.banda[1]) / 2} />}
+            <Grafica datos={ind.serie} banda={ind.banda} unidad={ind.unidad} dec={ind.dec} nombre={ind.etiqueta}
+              umbral={ind.clave === "zumbido" ? { v: (ind.banda[0] + ind.banda[1]) / 2 - 10, texto: "−10 dB: envenenamiento" } : undefined} />
           </section>
         ))}
       </div>
@@ -97,7 +105,7 @@ export default function Colmena() {
           <tbody>
             <tr><th>Tono del zumbido</th><td>{num(ultima.sonido_hz, 0)} Hz · {tono(ultima.sonido_hz)}</td></tr>
             <tr><th>Temperatura de afuera</th><td>{num(ultima.temp_ext_c, 1)} °C</td></tr>
-            <tr><th>Batería del sensor</th><td>{num(ultima.bateria_pct, 0)} %{ultima.bateria_pct < 15 ? " 🔋 cambiarla pronto" : ""}</td></tr>
+            <tr><th>Batería del sensor</th><td>{num(ultima.bateria_pct, 0)} %{ultima.bateria_pct < 15 ? " · cambiarla pronto" : ""}</td></tr>
             <tr><th>Última lectura</th><td>{fecha(ultima.ts)}</td></tr>
             <tr><th>Ubicación</th><td><a href={`https://www.google.com/maps?q=${c.lat},${c.lon}`} target="_blank" rel="noreferrer">{num(c.lat, 4)}, {num(c.lon, 4)} (abrir mapa)</a></td></tr>
           </tbody>
@@ -111,7 +119,7 @@ export default function Colmena() {
             <tbody>
               {alertas.map((a) => (
                 <tr key={a.alerta_id}>
-                  <td style={{ width: 36, fontSize: "1.3rem" }} aria-hidden="true">{problema(a.tipo).emoji}</td>
+                  <td style={{ width: 40 }} aria-hidden="true"><Icono nombre={a.tipo} /></td>
                   <td><b>{problema(a.tipo).titulo}</b><div className="chico">{fecha(a.recibido || a.ts)}</div></td>
                 </tr>
               ))}

@@ -248,6 +248,26 @@ h3 { font-size: 1.1rem; line-height: 1.25; margin: 0 0 6px; }
 .leyenda-banda { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--propoleo-2); margin-top: 4px; }
 .leyenda-banda i { width: 18px; height: 10px; background: color-mix(in srgb, var(--monte) 16%, transparent); border: 1px solid var(--monte); border-radius: 2px; }
 
+/* ---------- zumbido: onda ámbar sobre panal de noche */
+.zumbido { display: grid; gap: 6px; background: var(--panal-noche); color: #f6e9cf; border-radius: var(--radio); padding: 10px 12px; margin: 8px 0 4px; overflow: hidden; }
+.zumbido > svg { width: 100%; height: 96px; display: block; overflow: hidden; }
+.zumbido .tira { animation: correr var(--vel, 2.4s) linear infinite; }
+.zumbido path { transition: d .6s var(--curva-miel); }
+.zumbido .aclaracion { display: flex; gap: 6px; align-items: center; font-size: .78rem; color: #c9b391; }
+@keyframes correr { from { transform: translateX(0); } to { transform: translateX(-320px); } }
+
+/* ---------- una abeja, en su propio carril */
+.vuelo { position: relative; height: 64px; overflow: hidden; pointer-events: none; }
+.abeja-vuela {
+  position: absolute; left: 0; top: 0; width: 28px; height: 28px; color: var(--propoleo);
+  offset-path: path("M -40 40 C 60 8, 140 58, 240 30 S 420 10, 520 40 S 700 56, 820 20");
+  offset-rotate: auto; animation: volar 14s var(--curva-cera) infinite;
+}
+.abeja-vuela svg { transform: rotate(90deg); }
+@keyframes volar { 0% { offset-distance: 0%; opacity: 0; } 6% { opacity: .85; } 70% { offset-distance: 100%; opacity: .85; } 74%, 100% { offset-distance: 100%; opacity: 0; } }
+.vacio { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 8px 16px 24px; }
+.vacio > svg { color: var(--monte); }
+
 /* ---------- desplegables */
 details { border-top: 1px solid var(--cera-3); margin-top: 12px; }
 details > summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 700; color: var(--propoleo-2); list-style: none; }
@@ -335,7 +355,8 @@ pre { white-space: pre-wrap; word-break: break-word; font-size: 0.75rem; backgro
 
 /* ---------- movimiento reducido: solo transiciones de opacidad */
 @media (prefers-reduced-motion: reduce) {
-  .respira, .miel-sube, .esqueleto i, .marcador .onda { animation: none !important; }
+  .respira, .miel-sube, .esqueleto i, .marcador .onda, .zumbido .tira { animation: none !important; }
+  .abeja-vuela { animation: none; offset-distance: 45%; opacity: .85; }
   main.contenedor > * { animation-name: aparecer-quieto; }
   .trazo-check { animation: none; stroke-dashoffset: 0; }
   .boton:active { transform: none; }
