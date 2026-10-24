@@ -198,14 +198,22 @@ class DestinoIoT:
     def _cliente(self, colmena_id: str):
         if colmena_id in self.clientes:
             return self.clientes[colmena_id]
+        import threading
+
         mqtt, cfg = self.mqtt, self.cfg
         c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=f"kab-{colmena_id}")
         c.tls_set(ca_certs=cfg["ca"], certfile=cfg["cert"], keyfile=cfg["key"])
         topico_estado = f"kab/colmenas/{colmena_id}/estado"
         c.will_set(topico_estado, json.dumps({"colmena_id": colmena_id, "estado": "desconectada"}), qos=1)
-        c.connect(cfg["endpoint"], 8883, keepalive=self.keepalive)
+        # Esperar a que IoT Core confirme la conexión antes de publicar; si no, la primera
+        # conexión se cae, paho reconecta e IoT Core dispara el Last Will por error.
+        conectado = threading.Event()
+        c.on_connect = lambda cliente, datos, banderas, codigo, props: conectado.set()
+        c.connect_async(cfg["endpoint"], 8883, keepalive=self.keepalive)
         c.loop_start()
-        c.publish(topico_estado, json.dumps({"colmena_id": colmena_id, "estado": "conectada"}), qos=1)
+        if not conectado.wait(20):
+            raise RuntimeError(f"{colmena_id}: IoT Core no respondió en 20 s (¿internet o certificado?)")
+        c.publish(topico_estado, json.dumps({"colmena_id": colmena_id, "estado": "conectada"}), qos=1).wait_for_publish(10)
         self.clientes[colmena_id] = c
         return c
 

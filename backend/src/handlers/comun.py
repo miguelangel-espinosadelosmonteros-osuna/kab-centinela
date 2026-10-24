@@ -105,6 +105,21 @@ def eventos_recientes(limite=300, tipos=None, colmena_id=None) -> list:
     return items
 
 
+def reservar(clave: str) -> bool:
+    """Candado en DynamoDB: de varias Lambdas en paralelo, solo la primera lo obtiene.
+
+    Evita brotes y SMS duplicados cuando llegan lecturas de varias colmenas al mismo tiempo.
+    """
+    try:
+        tabla("TABLA_EVENTOS").put_item(
+            Item={"pk": "RESERVA", "sk": clave, "creado": ahora_iso()},
+            ConditionExpression="attribute_not_exists(pk)",
+        )
+        return True
+    except _ddb.meta.client.exceptions.ConditionalCheckFailedException:
+        return False
+
+
 def publicar_evento(tipo_detalle: str, detalle: dict):
     r = _events.put_events(Entries=[{
         "Source": FUENTE_EVENTOS,

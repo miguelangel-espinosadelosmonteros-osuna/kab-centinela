@@ -115,7 +115,9 @@ def salud(evento, params, cuerpo, query):
 
 @ruta("GET /colmenas")
 def listar_colmenas(evento, params, cuerpo, query):
-    colmenas = sorted((_vista_colmena(c) for c in _scan("TABLA_COLMENAS")), key=lambda c: c["colmena_id"])
+    # una colmena sin apiario solo mandó su estado de conexión, todavía no tiene lecturas
+    colmenas = sorted((_vista_colmena(c) for c in _scan("TABLA_COLMENAS") if c.get("apiario_id")),
+                      key=lambda c: c["colmena_id"])
     resumen = {"total": len(colmenas)}
     for estado in ORDEN_ESTADO:
         resumen[estado] = sum(1 for c in colmenas if c["estado"] == estado)

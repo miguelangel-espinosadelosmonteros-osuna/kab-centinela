@@ -2,6 +2,8 @@
 
 La colmena que escucha: detecta en minutos el envenenamiento por plaguicidas y lo convierte en evidencia que nadie puede borrar.
 
+**Tablero en vivo:** https://kab-centinela.vercel.app
+
 ## Problema
 
 En Nohalal (Tekax, Yucatán), ECOSUR confirmó en 2025 fipronil un 39% por encima de la dosis letal media: hubo 99 colmenas envenenadas en 5 apiarios, y la prensa reportó más de 3 millones de abejas muertas ([Por Esto!](https://www.poresto.com/yucatan/2026/7/19/apicultura-maya-lucha-por-sobrevivir-en-yucatan-ocho-millones-de-abejas-muertas-en-3-anos-2.html)). Entre 2023 y 2025 murieron más de 8 millones de abejas por plaguicidas en Campeche y Yucatán, y nadie ha sido sancionado ([Por Esto!](https://www.poresto.com/yucatan/2025/7/6/plaguicidas-matan-mas-de-8-millones-de-abejas-en-la-peninsula-de-yucatan-dos-ecocidios-masivos-siguen-impunes-y-sin-responsable.html)). Cuando el apicultor llega al apiario, ya no hay pruebas.
@@ -102,6 +104,7 @@ python registrar_dispositivo.py --politica <salida PoliticaIoT>
 python simular_colmenas.py --modo iot --escenario fumigacion --velocidad 0.5
 python simular_colmenas.py --modo iot --escenario normal --cortar TEK-03   # prueba el Last Will
 python simular_colmenas.py --modo local --escenario todo                    # plan B sin internet
+python ../scripts/reiniciar_demo.py                                          # limpiar datos entre ensayos
 ```
 
 Para mandar datos propios, revisa el [contrato de datos](docs/contrato-datos.md).

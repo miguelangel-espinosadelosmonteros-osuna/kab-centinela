@@ -91,6 +91,8 @@ def redactar_narrativa(expediente: dict, model_id: str, region: str):
             else:
                 texto = _con_converse(model_id, region, contenido)
             if texto:
+                # el tablero muestra texto plano: quitar marcas de markdown que a veces agrega el modelo
+                texto = texto.replace("**", "").replace("## ", "").replace("# ", "")
                 return texto, f"bedrock:{model_id}"
         except Exception:  # la demo no se cae si Bedrock falla
             log.exception("Bedrock falló; uso la plantilla de respaldo")

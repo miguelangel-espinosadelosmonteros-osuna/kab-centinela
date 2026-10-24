@@ -16,7 +16,7 @@ from kab_core.deteccion import (
 
 from handlers.comun import (
     actualizar_item, ahora_iso, eventos_recientes, guardar_evento, guardar_lectura, leer_historial, log,
-    obtener_colmena, publicar_evento,
+    obtener_colmena, publicar_evento, reservar,
 )
 
 
@@ -36,11 +36,17 @@ def procesar(datos: dict) -> list:
             [e for e in recientes if e["tipo"] == INTOXICACION],
             [e for e in recientes if e["tipo"] == BROTE_REGIONAL],
         )
-        if brote:
+        # Varias Lambdas corren a la vez: el candado deja pasar un solo brote por grupo de apiarios
+        marca = lectura.get("sesion") or lectura["ts"][:10]
+        if brote and reservar(f"BROTE#{marca}#{'|'.join(brote['metricas']['apiarios'])}"):
+            brote["avisar_sms"] = True
             alertas.append(brote)
-        # Cada SMS a México cuesta ~0.10 USD: un SMS por apiario, y si ya hay brote, solo el del brote
-        ya_avisado = any(e["tipo"] == INTOXICACION and e.get("apiario_id") == intox["apiario_id"] for e in recientes)
-        intox["avisar_sms"] = not ya_avisado and not brote
+            for apiario in brote["metricas"]["apiarios"]:
+                reservar(f"SMS#{marca}#{apiario}")  # el brote ya avisó a estos apiarios
+            intox["avisar_sms"] = False
+        else:
+            # Cada SMS a México cuesta ~0.10 USD: uno por apiario
+            intox["avisar_sms"] = reservar(f"SMS#{marca}#{intox['apiario_id']}")
 
     for alerta in alertas:
         alerta.setdefault("avisar_sms", alerta["severidad"] == "critica")
