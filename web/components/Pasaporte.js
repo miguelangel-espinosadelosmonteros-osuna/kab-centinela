@@ -9,6 +9,12 @@ import { IconoEstado, num } from "@/components/ui";
 
 const CURVA_MIEL = [0.22, 1, 0.36, 1];
 
+/** Un renglón para el sello: el primer motivo y cuántos más hay (la lista completa va fuera de la tarjeta). */
+export function resumirMotivos(motivos = []) {
+  if (motivos.length <= 1) return motivos[0] || "";
+  return `${motivos[0].replace(/\s*\(colmena [^)]*\)/, "")} y ${motivos.length - 1} más`;
+}
+
 /**
  * Pasaporte del lote: al frente origen y dictamen, atrás el QR que escanea el comprador.
  * Se voltea con un botón visible; con "reducir movimiento" cambia de cara solo con opacidad.
@@ -32,7 +38,7 @@ export default function Pasaporte({ documento: doc, url, qrRef, conQr = true }) 
       </dl>
       <div className={`dictamen-sello ${doc.apto ? "apto" : "no-apto"}`}>
         <IconoEstado estado={doc.apto ? "sana" : "critica"} titulo="" tam={40} />
-        <span><b>{doc.apto ? "Miel apta" : "No apta"}</b><small>{doc.motivos?.join(" · ")}</small></span>
+        <span><b>{doc.apto ? "Miel apta" : "No apta"}</b><small>{resumirMotivos(doc.motivos)}</small></span>
       </div>
     </div>
   );

@@ -72,6 +72,7 @@ export default function Inicio() {
 
   if (!datos) return <Cargando error={error} recargar={recargar} />;
 
+  const urgentesHoy = (avisos?.alertas || []).filter((a) => ["critica", "alta"].includes(a.severidad)).length;
   const visibles = filtro ? datos.colmenas.filter((c) => FILTROS[filtro].estados.includes(c.estado)) : datos.colmenas;
 
   // Un aviso por apiario (el más grave y luego el más reciente), solo urgentes y de "revisar hoy"
@@ -105,9 +106,14 @@ export default function Inicio() {
           <div className="pila">
             {importantes.map((a) => <TarjetaAviso key={a.alerta_id} alerta={a} />)}
           </div>
-          <p style={{ marginTop: 10 }}><Link href="/avisos" className="boton ancho">Ver todos los avisos</Link></p>
         </>
       )}
+      {/* La única entrada a la lista de avisos (ya no hay pestaña) */}
+      <p style={{ marginTop: 12 }}>
+        <Link href="/avisos" className={`boton ancho ${urgentesHoy ? "primario" : ""}`}>
+          {urgentesHoy ? `Ver todos los avisos (${urgentesHoy} urgentes o para hoy)` : "Ver todos los avisos"}
+        </Link>
+      </p>
 
       <h2>Dónde están tus apiarios</h2>
       <Mapa apiarios={apiarios} brotes={brotes} alTocar={irApiario} />

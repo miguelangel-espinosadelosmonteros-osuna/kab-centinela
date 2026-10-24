@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useApi } from "@/lib/api";
 import { Cargando, IconoEstado } from "@/components/ui";
@@ -21,6 +22,7 @@ export default function Avisos() {
 
   return (
     <>
+      <Link href="/" className="volver">← Volver al inicio</Link>
       <h1>Avisos</h1>
       <p className="sub">Lo que han notado tus colmenas. Los más nuevos van primero.</p>
       <div className="fichas" role="group" aria-label="Qué avisos ver" style={{ marginBottom: 14 }}>

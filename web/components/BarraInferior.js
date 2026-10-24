@@ -7,7 +7,6 @@ import Icono from "@/components/Icono";
 
 const LINKS = [
   ["/", "Inicio", "colmena"],
-  ["/avisos", "Avisos", "campana"],
   ["/expedientes", "Pruebas", "escudo"],
   ["/pasaporte", "Mi miel", "frasco"],
 ];
@@ -21,12 +20,12 @@ export default function BarraInferior() {
     <footer className="barra-inferior">
       <nav aria-label="Secciones">
         {LINKS.map(([href, texto, icono]) => {
-          const activo = href === "/" ? ruta === "/" || ruta.startsWith("/colmenas") : ruta.startsWith(href);
+          const activo = href === "/" ? ruta === "/" || ruta.startsWith("/colmenas") || ruta.startsWith("/avisos") : ruta.startsWith(href);
           return (
             <Link key={href} href={href} className={activo ? "activo" : ""} aria-current={activo ? "page" : undefined}>
               <Icono nombre={icono} tam={28} />
               {texto}
-              {href === "/avisos" && urgentes > 0 && <span className="globo" aria-label={`${urgentes} urgentes`}>{urgentes}</span>}
+              {href === "/" && urgentes > 0 && <span className="globo" aria-label={`${urgentes} urgentes`}>{urgentes}</span>}
             </Link>
           );
         })}
