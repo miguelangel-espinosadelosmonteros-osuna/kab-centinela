@@ -1,4 +1,4 @@
-# KAAB 🐝
+# KAAB 
 
 **La colmena que escucha:** detecta en minutos el envenenamiento de abejas por plaguicidas, avisa al apicultor y guarda una prueba que nadie puede borrar.
 
@@ -48,10 +48,10 @@ KAB Centinela pone en cada colmena un sensor que **la pesa, mide su calor y escu
 
 | | Qué hace | Cómo lo ve el apicultor |
 | --- | --- | --- |
-| 🔎 **Detecta** | Reconoce 10 problemas en la colmena (tabla de abajo). | La colmena se pone en rojo, naranja o amarillo en el tablero. |
-| 📲 **Avisa** | Manda el aviso en segundos. | Llega un correo o SMS, y en el celular ve **qué hacer, paso a paso**. |
-| 🛡️ **Prueba** | Si hay envenenamiento, arma un expediente con los datos del sensor, lo firma digitalmente y lo guarda donde nadie lo puede borrar ni cambiar. | Tiene una **prueba lista para denunciar** ante PROFEPA, que puede imprimir o mandar por WhatsApp. |
-| 🍯 **Certifica** | Emite un certificado firmado del lote de miel: de dónde viene y si el apiario estuvo libre de envenenamientos. | El comprador escanea un **QR** y comprueba el origen, así el apicultor puede pedir mejor precio. |
+|  **Detecta** | Reconoce 10 problemas en la colmena (tabla de abajo). | La colmena se pone en rojo, naranja o amarillo en el tablero. |
+|  **Avisa** | Manda el aviso en segundos. | Llega un correo o SMS, y en el celular ve **qué hacer, paso a paso**. |
+|  **Prueba** | Si hay envenenamiento, arma un expediente con los datos del sensor, lo firma digitalmente y lo guarda donde nadie lo puede borrar ni cambiar. | Tiene una **prueba lista para denunciar** ante PROFEPA, que puede imprimir o mandar por WhatsApp. |
+|  **Certifica** | Emite un certificado firmado del lote de miel: de dónde viene y si el apiario estuvo libre de envenenamientos. | El comprador escanea un **QR** y comprueba el origen, así el apicultor puede pedir mejor precio. |
 
 ### Qué detecta y cómo
 
@@ -59,16 +59,16 @@ Cada regla compara la lectura actual con la historia reciente de **esa misma** c
 
 | Problema | Cómo lo reconoce el sistema |
 | --- | --- |
-| ☠️ Envenenamiento | El zumbido baja 10 dB o más **y** la colmena pierde 0.5 kg o más al mismo tiempo. Una noche fresca baja el zumbido pero no el peso, por eso no se confunde. |
-| 🚁 Fumigación en la zona | Envenenamiento en **dos apiarios distintos a menos de 3 km** en menos de 6 horas: es el patrón de una avioneta o un dron. |
-| 🌡️ Golpe de calor | La cámara de cría pasa de 38 °C (crítico desde 40 °C). |
-| 💧 Sequía | Humedad menor a 30% con más de 35 °C durante horas. |
-| ❄️ Frío extremo | La cría baja de 30 °C con viento frío afuera. |
-| 🌼 Hambruna (sin flores) | La colmena pierde 0.25 kg o más cada día durante al menos 2 días. |
-| 👑 Sin reina | El zumbido se vuelve agudo (350 Hz o más) y se sostiene. |
-| 🐝 Enjambrazón | Pierde de 1.5 a 5 kg de golpe: media colonia se fue. |
-| 🦠 Varroa o enfermedad | No controla su temperatura y su zumbido baja poco a poco durante un día. |
-| 📡 Sensor caído o robo | El sensor deja de transmitir sin despedirse (Last Will de IoT Core). |
+| Envenenamiento | El zumbido baja 10 dB o más **y** la colmena pierde 0.5 kg o más al mismo tiempo. Una noche fresca baja el zumbido pero no el peso, por eso no se confunde. |
+| Fumigación en la zona | Envenenamiento en **dos apiarios distintos a menos de 3 km** en menos de 6 horas: es el patrón de una avioneta o un dron. |
+| Golpe de calor | La cámara de cría pasa de 38 °C (crítico desde 40 °C). |
+| Sequía | Humedad menor a 30% con más de 35 °C durante horas. |
+| Frío extremo | La cría baja de 30 °C con viento frío afuera. |
+| Hambruna (sin flores) | La colmena pierde 0.25 kg o más cada día durante al menos 2 días. |
+| Sin reina | El zumbido se vuelve agudo (350 Hz o más) y se sostiene. |
+| Enjambrazón | Pierde de 1.5 a 5 kg de golpe: media colonia se fue. |
+| Varroa o enfermedad | No controla su temperatura y su zumbido baja poco a poco durante un día. |
+| Sensor caído o robo | El sensor deja de transmitir sin despedirse (Last Will de IoT Core). |
 
 ### Pensado para el campo
 
@@ -76,8 +76,8 @@ El tablero es para apicultores que no usan mucho el celular:
 - **Letra grande** (base de 18 px, hecha para leerse con poca vista).
 - **Palabras en vez de números técnicos**: "el zumbido está muy bajo, casi no zumban" en lugar de "56 dB".
 - **Cada estado lleva ícono, color y palabra**, nunca solo color: palomita verde = Bien, triángulo = Revisar, señal de alto roja = ¡Urgente!
-- **Botón 🔊 Escuchar:** el teléfono lee el aviso en voz alta.
-- **Botón 💬 WhatsApp:** manda el aviso a vecinos o a la cooperativa.
+- **Botón Escuchar:** el teléfono lee el aviso en voz alta.
+- **Botón WhatsApp:** manda el aviso a vecinos o a la cooperativa.
 - **Mapa de apiarios**, con el círculo de 3 km alrededor de un envenenamiento.
 - **Botones grandes y la navegación abajo**, al alcance del pulgar.
 
