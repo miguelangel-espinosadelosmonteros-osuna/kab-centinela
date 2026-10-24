@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { fecha, hace, num } from "@/components/ui";
 
 const hora = fecha;
@@ -13,16 +13,17 @@ function redondo(v, dec) {
 }
 
 /**
- * Gráfica de una sola serie (línea de 2 px + lavado al 10%) con franja del rango sano.
+ * Gráfica de una sola serie: línea ámbar, área de miel y franja verde del rango sano.
  * Toca o desliza el dedo para ver cada lectura. Debajo, la tabla con los números.
  */
-export default function Grafica({ datos, banda, unidad = "", dec = 1, nombre }) {
+export default function Grafica({ datos, banda, umbral, unidad = "", dec = 1, nombre }) {
   const caja = useRef(null);
+  const idMiel = `miel-${useId().replace(/:/g, "")}`;
   const [activo, setActivo] = useState(null);
   const puntos = datos.filter((d) => d.v !== null && d.v !== undefined);
   if (puntos.length < 2) return <p className="chico">Todavía no hay suficientes lecturas.</p>;
 
-  const valores = puntos.map((d) => d.v).concat(banda || []);
+  const valores = puntos.map((d) => d.v).concat(banda || [], umbral ? [umbral.v] : []);
   let min = Math.min(...valores), max = Math.max(...valores);
   const margen = (max - min || 1) * 0.12;
   min -= margen; max += margen;
@@ -48,28 +49,40 @@ export default function Grafica({ datos, banda, unidad = "", dec = 1, nombre }) 
       <svg ref={caja} viewBox={`0 0 ${W} ${H}`} role="img"
         aria-label={`${nombre}: ahora ${num(ultimo.v, dec)} ${unidad}`}
         onPointerMove={mover} onPointerDown={mover} onPointerLeave={() => setActivo(null)}>
+        <defs>
+          <linearGradient id={idMiel} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--miel)" stopOpacity=".42" />
+            <stop offset="1" stopColor="var(--miel)" stopOpacity=".02" />
+          </linearGradient>
+        </defs>
         {banda && (
-          <rect x={IZQ} width={W - IZQ - DER} y={y(banda[1])} height={Math.max(0, y(banda[0]) - y(banda[1]))} fill="var(--banda)" />
+          <rect x={IZQ} width={W - IZQ - DER} y={y(banda[1])} height={Math.max(0, y(banda[0]) - y(banda[1]))} fill="var(--monte)" opacity=".12" />
         )}
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={IZQ} x2={W - DER} y1={y(t)} y2={y(t)} stroke="var(--borde)" strokeWidth="1" />
-            <text x={IZQ - 6} y={y(t) + 4} textAnchor="end" fontSize="11" fill="var(--texto-3)">{num(t, dec)}</text>
+            <line x1={IZQ} x2={W - DER} y1={y(t)} y2={y(t)} stroke="var(--cera-3)" strokeWidth="1" />
+            <text x={IZQ - 6} y={y(t) + 4} textAnchor="end" fontSize="11" fill="var(--propoleo-2)">{num(t, dec)}</text>
           </g>
         ))}
-        <line x1={IZQ} x2={W - DER} y1={H - ABA} y2={H - ABA} stroke="var(--eje)" strokeWidth="1" />
-        <text x={IZQ} y={H - 8} fontSize="11" fill="var(--texto-3)">{hace(puntos[0].ts)}</text>
-        <text x={W - DER} y={H - 8} fontSize="11" fill="var(--texto-3)" textAnchor="end">{hace(ultimo.ts)}</text>
-        <path d={area} fill="var(--serie)" opacity="0.1" />
-        <path d={linea} fill="none" stroke="var(--serie)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={x(puntos.length - 1)} cy={y(ultimo.v)} r="5" fill="var(--serie)" stroke="var(--superficie)" strokeWidth="2" />
-        <text x={x(puntos.length - 1) + 9} y={y(ultimo.v) + 4} fontSize="12" fontWeight="700" fill="var(--texto)">
+        <line x1={IZQ} x2={W - DER} y1={H - ABA} y2={H - ABA} stroke="var(--cera-3)" strokeWidth="1" />
+        <text x={IZQ} y={H - 8} fontSize="11" fill="var(--propoleo-2)">{hace(puntos[0].ts)}</text>
+        <text x={W - DER} y={H - 8} fontSize="11" fill="var(--propoleo-2)" textAnchor="end">{hace(ultimo.ts)}</text>
+        {umbral && (
+          <g>
+            <line x1={IZQ} x2={W - DER} y1={y(umbral.v)} y2={y(umbral.v)} stroke="var(--alerta)" strokeDasharray="5 4" strokeWidth="1.5" />
+            <text x={IZQ + 4} y={y(umbral.v) - 5} fontSize="10.5" fontWeight="700" fill="var(--alerta)">{umbral.texto}</text>
+          </g>
+        )}
+        <path d={area} fill={`url(#${idMiel})`} />
+        <path d={linea} fill="none" stroke="var(--linea-grafica)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={x(puntos.length - 1)} cy={y(ultimo.v)} r="5" fill="var(--miel)" stroke="var(--propoleo)" strokeWidth="1.5" />
+        <text x={x(puntos.length - 1) + 9} y={y(ultimo.v) + 4} fontSize="12" fontWeight="700" fill="var(--propoleo)" fontFamily="var(--f-dato)">
           {num(ultimo.v, dec)}
         </text>
         {a && (
           <g>
-            <line x1={x(activo)} x2={x(activo)} y1={ARR} y2={H - ABA} stroke="var(--texto-3)" strokeWidth="1" />
-            <circle cx={x(activo)} cy={y(a.v)} r="5" fill="var(--serie)" stroke="var(--superficie)" strokeWidth="2" />
+            <line x1={x(activo)} x2={x(activo)} y1={ARR} y2={H - ABA} stroke="var(--propoleo-2)" strokeWidth="1" />
+            <circle cx={x(activo)} cy={y(a.v)} r="5" fill="var(--miel)" stroke="var(--propoleo)" strokeWidth="1.5" />
           </g>
         )}
         {/* área de toque más grande que la línea */}
@@ -80,7 +93,7 @@ export default function Grafica({ datos, banda, unidad = "", dec = 1, nombre }) 
           <b>{num(a.v, dec)} {unidad}</b>{hora(a.ts)}
         </div>
       )}
-      {banda && <div className="leyenda-banda"><i aria-hidden="true" />Franja gris = lo normal ({num(banda[0], dec)} a {num(banda[1], dec)} {unidad})</div>}
+      {banda && <div className="leyenda-banda"><i aria-hidden="true" />Franja verde = lo normal ({num(banda[0], dec)} a {num(banda[1], dec)} {unidad})</div>}
       <details>
         <summary>Ver los números</summary>
         <table className="tabla">

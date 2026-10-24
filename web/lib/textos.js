@@ -1,17 +1,18 @@
 // Textos en lenguaje sencillo para el apicultor. Un lugar para revisarlos y corregirlos.
+// El ícono de cada problema es <Icono nombre={tipo} /> (components/Icono.js).
 
 export const ESTADOS = {
   sana: { palabra: "Bien", frase: "Todo normal", icono: "bien" },
   atencion: { palabra: "Revisar pronto", frase: "Algo cambió, revísala en estos días", icono: "aviso" },
   alerta: { palabra: "Revisar hoy", frase: "Necesita que vayas hoy", icono: "aviso" },
   critica: { palabra: "¡Urgente!", frase: "Necesita ayuda ahora", icono: "urgente" },
+  apagada: { palabra: "Sin señal", frase: "El sensor no responde", icono: "apagada" },
 };
 
 export const SEVERIDAD_A_ESTADO = { baja: "atencion", media: "atencion", alta: "alerta", critica: "critica" };
 
 export const PROBLEMAS = {
   INTOXICACION: {
-    emoji: "☠️",
     titulo: "Posible envenenamiento",
     corto: "Las abejas casi dejaron de zumbar y la colmena perdió peso.",
     explicacion:
@@ -26,7 +27,6 @@ export const PROBLEMAS = {
     prueba: true,
   },
   BROTE_REGIONAL: {
-    emoji: "🚁",
     titulo: "Fumigación en la zona",
     corto: "Varios apiarios cercanos se envenenaron casi a la misma hora.",
     explicacion:
@@ -40,7 +40,6 @@ export const PROBLEMAS = {
     prueba: true,
   },
   GOLPE_CALOR: {
-    emoji: "🌡️",
     titulo: "Mucho calor en la colmena",
     corto: "Dentro de la colmena hace demasiado calor para la cría.",
     explicacion: "La cría (las abejas bebé) necesita entre 32 y 36 grados. Arriba de 38 grados se daña y la cera se ablanda.",
@@ -51,7 +50,6 @@ export const PROBLEMAS = {
     ],
   },
   SEQUIA: {
-    emoji: "💧",
     titulo: "Falta agua",
     corto: "El aire está muy seco y caliente desde hace horas.",
     explicacion: "Con mucho calor y poca humedad las abejas gastan su energía buscando agua para enfriar la colmena.",
@@ -62,7 +60,6 @@ export const PROBLEMAS = {
     ],
   },
   FRIO_EXTREMO: {
-    emoji: "❄️",
     titulo: "Hace mucho frío",
     corto: "La cría se está enfriando.",
     explicacion: "Con el viento del norte la colmena no logra calentar a la cría, que necesita al menos 32 grados.",
@@ -73,7 +70,6 @@ export const PROBLEMAS = {
     ],
   },
   HAMBRUNA: {
-    emoji: "🌼",
     titulo: "Faltan flores: tienen hambre",
     corto: "La colmena pierde peso día con día.",
     explicacion:
@@ -85,7 +81,6 @@ export const PROBLEMAS = {
     ],
   },
   AUSENCIA_REINA: {
-    emoji: "👑",
     titulo: "Puede que no tenga reina",
     corto: "El zumbido cambió a un tono agudo, como un lamento.",
     explicacion: "Cuando la colmena pierde a su reina, las abejas zumban más agudo y más fuerte.",
@@ -95,7 +90,6 @@ export const PROBLEMAS = {
     ],
   },
   ENJAMBRAZON: {
-    emoji: "🐝",
     titulo: "Se fue un enjambre",
     corto: "La colmena perdió más de 1.5 kg de golpe.",
     explicacion: "Media colonia salió con una reina a buscar otra casa. Si lo encuentras pronto, puedes recuperarlo.",
@@ -106,7 +100,6 @@ export const PROBLEMAS = {
     ],
   },
   VARROA_ENFERMEDAD: {
-    emoji: "🦠",
     titulo: "Puede estar enferma",
     corto: "La colmena no controla bien su calor y zumba cada vez menos.",
     explicacion: "Una colmena con varroa (un ácaro) o enferma se debilita poco a poco: ya no mantiene el calor y cada día suena menos.",
@@ -117,14 +110,12 @@ export const PROBLEMAS = {
     ],
   },
   DESCONEXION: {
-    emoji: "📡",
     titulo: "El sensor no responde",
     corto: "Dejamos de recibir datos de esta colmena.",
     explicacion: "El sensor se apagó de golpe. Puede ser la batería, la señal, un robo o un incendio.",
     pasos: ["Ve al apiario a revisar que la colmena esté ahí.", "Revisa la batería y que el sensor esté bien puesto."],
   },
   BATERIA_BAJA: {
-    emoji: "🔋",
     titulo: "Batería baja",
     corto: "Al sensor le queda poca batería.",
     explicacion: "Si se acaba, dejaremos de cuidar esta colmena.",
@@ -133,7 +124,7 @@ export const PROBLEMAS = {
 };
 
 export function problema(tipo) {
-  return PROBLEMAS[tipo] || { emoji: "⚠️", titulo: tipo, corto: "", explicacion: "", pasos: [] };
+  return PROBLEMAS[tipo] || { titulo: tipo, corto: "", explicacion: "", pasos: [] };
 }
 
 export const FLORES = ["Tajonal", "Ts'íits'ilche'", "Dzidzilché", "Jabín", "Varias flores"];

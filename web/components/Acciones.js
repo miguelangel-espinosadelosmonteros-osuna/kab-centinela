@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { callar, hablar, puedeHablar } from "@/lib/voz";
+import Icono from "@/components/Icono";
 
 const TELEFONO = process.env.NEXT_PUBLIC_TELEFONO_AYUDA || "";
 
@@ -19,7 +20,7 @@ export function BotonEscuchar({ texto, etiqueta = "Escuchar" }) {
       if (hablando) { callar(); setHablando(false); return; }
       setHablando(hablar(texto, () => setHablando(false)));
     }}>
-      <span className="emoji" aria-hidden="true">{hablando ? "⏹️" : "🔊"}</span>
+      <Icono nombre={hablando ? "detener" : "bocina"} />
       {hablando ? "Detener" : etiqueta}
     </button>
   );
@@ -29,7 +30,7 @@ export function BotonEscuchar({ texto, etiqueta = "Escuchar" }) {
 export function BotonWhatsApp({ texto, etiqueta = "Avisar por WhatsApp" }) {
   return (
     <a className="boton whatsapp" href={`https://wa.me/?text=${encodeURIComponent(texto)}`} target="_blank" rel="noreferrer">
-      <span className="emoji" aria-hidden="true">💬</span>{etiqueta}
+      <Icono nombre="mensaje" />{etiqueta}
     </a>
   );
 }
@@ -39,7 +40,7 @@ export function BotonLlamar({ etiqueta = "Llamar al técnico" }) {
   if (!TELEFONO) return null;
   return (
     <a className="boton" href={`tel:${TELEFONO}`}>
-      <span className="emoji" aria-hidden="true">📞</span>{etiqueta}
+      <Icono nombre="telefono" />{etiqueta}
     </a>
   );
 }

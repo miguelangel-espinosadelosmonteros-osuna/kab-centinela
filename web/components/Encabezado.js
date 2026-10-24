@@ -3,15 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MODO_DEMO } from "@/lib/api";
+import Icono from "@/components/Icono";
 
+/** Logotipo: celda de miel con la onda del zumbido adentro. */
 export function Logo({ tam = 36 }) {
   return (
     <svg width={tam} height={tam} viewBox="0 0 40 40" aria-hidden="true">
-      <path d="M20 3l14 8v18l-14 8-14-8V11z" fill="var(--miel)" />
-      <ellipse cx="20" cy="22" rx="6.5" ry="8" fill="#1b1813" />
-      <path d="M14 20h12M14 24.5h12" stroke="var(--miel)" strokeWidth="2.2" />
-      <ellipse cx="14" cy="13.5" rx="5" ry="3.2" fill="#fff" opacity=".9" transform="rotate(-25 14 13.5)" />
-      <ellipse cx="26" cy="13.5" rx="5" ry="3.2" fill="#fff" opacity=".9" transform="rotate(25 26 13.5)" />
+      <path d="M20 2.5 35.2 11.25v17.5L20 37.5 4.8 28.75v-17.5z" fill="var(--miel)" />
+      <path d="M12.5 17.5v5M16.25 13.5v13M20 10v20M23.75 14v12M27.5 17.5v5" stroke="#3a2414" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -43,9 +42,9 @@ export default function Encabezado() {
         </Link>
         <button className="boton-icono" onClick={() => setGrande(!grande)} aria-pressed={grande}
           aria-label={grande ? "Letra normal" : "Letra más grande"}>
-          <span style={{ fontSize: "0.85rem" }}>A</span><span style={{ fontSize: "1.25rem" }}>A</span>
+          <Icono nombre="letra" />
         </button>
-        <Link href="/ayuda" className="boton-icono" aria-label="Ayuda">?</Link>
+        <Link href="/ayuda" className="boton-icono" aria-label="Ayuda"><Icono nombre="ayuda" /></Link>
       </div>
     </header>
   );
