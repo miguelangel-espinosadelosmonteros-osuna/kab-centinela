@@ -294,12 +294,12 @@ El bucket de expedientes no se borra a propósito, porque Object Lock lo protege
 
 | Rol | Persona | Qué construyó |
 | --- | --- | --- |
-| 1. Líder AWS y despliegue | | [`backend/template.yaml`](backend/template.yaml) |
-| 2. IoT y simulador | | [`simulador/`](simulador/), [`estado_conexion.py`](backend/src/handlers/estado_conexion.py) |
-| 3. Detección y avisos | | [`deteccion.py`](backend/src/kab_core/deteccion.py), [`procesar_telemetria.py`](backend/src/handlers/procesar_telemetria.py), [`notificar.py`](backend/src/handlers/notificar.py) |
-| 4. Evidencia e IA | | [`evidencia.py`](backend/src/kab_core/evidencia.py), [`narrativa.py`](backend/src/kab_core/narrativa.py), [`pasaporte.py`](backend/src/kab_core/pasaporte.py), [`expediente.py`](backend/src/handlers/expediente.py) |
-| 5. Tablero web | | [`web/`](web/), [`video/`](video/) |
-| 6. Problema, pitch y documentación | | `README.md`, [`docs/`](docs/) |
+| 1. Líder AWS y despliegue |Miguel Espinosa | [`backend/template.yaml`](backend/template.yaml) |
+| 2. IoT y simulador |Rodrigo Llanos | [`simulador/`](simulador/), [`estado_conexion.py`](backend/src/handlers/estado_conexion.py) |
+| 3. Detección y avisos |Samuel Coronado | [`deteccion.py`](backend/src/kab_core/deteccion.py), [`procesar_telemetria.py`](backend/src/handlers/procesar_telemetria.py), [`notificar.py`](backend/src/handlers/notificar.py) |
+| 4. Evidencia e IA |Angel Arambula | [`evidencia.py`](backend/src/kab_core/evidencia.py), [`narrativa.py`](backend/src/kab_core/narrativa.py), [`pasaporte.py`](backend/src/kab_core/pasaporte.py), [`expediente.py`](backend/src/handlers/expediente.py) |
+| 5. Tablero web |Miguel Arambula | [`web/`](web/), [`video/`](video/) |
+| 6. Problema, pitch y documentación |Jorge Arauz | `README.md`, [`docs/`](docs/) |
 
 **Siguientes pasos:**
 - Entrenar el clasificador de audio con grabaciones reales.
