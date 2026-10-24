@@ -105,7 +105,10 @@ python simular_colmenas.py --modo iot --escenario fumigacion --velocidad 0.5
 python simular_colmenas.py --modo iot --escenario normal --cortar TEK-03   # prueba el Last Will
 python simular_colmenas.py --modo local --escenario todo                    # plan B sin internet
 python ../scripts/reiniciar_demo.py                                          # limpiar datos entre ensayos
+python simular_colmenas.py --modo iot --escenario mixto --velocidad 0        # datos de muestra: 14 colmenas, 10 casos
 ```
+
+Los datos de muestra (`colmenas_region.json`) son 14 colmenas en 7 apiarios (Tekax, Peto, Tzucacab, Tizimín, Oxkutzcab y Hopelchén), cada una con un caso: fumigación, calor, sequía, frío, hambruna, sin reina, enjambrazón, varroa, batería baja y sensor caído. Traen 50 horas de historia que terminan en el momento en que se corre. Para el guion de la demo (7 colmenas sanas y luego la fumigación) usa `reiniciar_demo.py` y después `--escenario fumigacion`.
 
 Para mandar datos propios, revisa el [contrato de datos](docs/contrato-datos.md).
 
@@ -116,7 +119,19 @@ cd web && npm install
 NEXT_PUBLIC_API_URL=<ApiUrl> npm run dev      # sin la variable usa datos de demostración
 ```
 
-En Vercel: importa el repo, pon **Root Directory = `web`** y agrega la variable `NEXT_PUBLIC_API_URL`.
+En Vercel: importa el repo, pon **Root Directory = `web`** y agrega la variable `NEXT_PUBLIC_API_URL`. Opcional: `NEXT_PUBLIC_TELEFONO_AYUDA` muestra el botón "Llamar al técnico".
+
+El diseño está pensado para apicultores con poca experiencia en el celular:
+- letra grande, con un botón para agrandarla aún más;
+- botones de al menos 56 px y la navegación abajo, al alcance del pulgar;
+- palabras en vez de unidades técnicas ("el zumbido está muy bajo");
+- cada estado con ícono, color y palabra, nunca solo color;
+- pasos numerados de qué hacer y botones para **escuchar** el aviso en voz alta y **mandarlo por WhatsApp**;
+- mapa de apiarios (OpenStreetMap) con el radio de 3 km de un brote.
+
+Las gráficas siguen la guía de dataviz: una sola serie, franja del rango normal, tooltip al tocar y tabla de números.
+
+Para regenerar los datos del modo demostración: `python simulador/simular_colmenas.py --modo local --escenario mixto --velocidad 0 --exportar-demo web/lib/demo-datos.json`.
 
 ### Pruebas
 

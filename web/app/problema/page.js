@@ -80,18 +80,18 @@ export default function Problema() {
         Cuando el apicultor llega al apiario ya no hay pruebas. KAB Centinela escucha la colmena, avisa en
         minutos y convierte los datos en evidencia firmada que nadie puede borrar.
       </p>
-      <div className="rejilla">
+      <div className="pila">
         {DATOS.map((d) => (
           <div className="tarjeta" key={d.titulo}>
             <strong>{d.titulo}</strong>
             <p style={{ margin: "6px 0" }}>{d.texto}</p>
-            <a className="fuente" href={d.url} target="_blank" rel="noreferrer">Fuente: {d.fuente}</a>
+            <a className="chico" href={d.url} target="_blank" rel="noreferrer">Fuente: {d.fuente}</a>
           </div>
         ))}
       </div>
 
       <h2>Qué detecta cada colmena</h2>
-      <table className="datos-tabla tarjeta">
+      <table className="tabla tarjeta">
         <tbody>{DETECTA.map(([a, b]) => <tr key={a}><td>{a}</td><td>{b}</td></tr>)}</tbody>
       </table>
     </>

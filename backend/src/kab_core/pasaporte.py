@@ -15,6 +15,7 @@ from .contrato import ts_a_datetime
 from .geo import distancia_km
 
 TIPOS_QUE_DESCALIFICAN = {"INTOXICACION", "BROTE_REGIONAL"}
+NOMBRES = {"INTOXICACION": "Envenenamiento", "BROTE_REGIONAL": "Fumigación en la zona"}
 VENTANA_DIAS = 60
 RADIO_KM = 3.0
 
@@ -36,14 +37,15 @@ def evaluar_lote(apiario: dict, eventos: list, ahora: str, ventana_dias: int = V
         if not mismo and e.get("lat") is not None and apiario.get("lat") is not None:
             cerca = distancia_km(apiario["lat"], apiario["lon"], e["lat"], e["lon"])
         if mismo or (cerca is not None and cerca <= RADIO_KM):
-            donde = "en el apiario" if mismo else f"a {cerca:.1f} km"
-            motivos.append(f"{e['tipo']} {donde} el {e['ts'][:10]} ({e.get('colmena_id')})")
+            donde = "en el apiario" if mismo else f"a {cerca:.1f} km del apiario"
+            que = NOMBRES.get(e["tipo"], e["tipo"])
+            motivos.append(f"{que} {donde} el {e['ts'][:10]} (colmena {e.get('colmena_id')})")
             relevantes.append(e.get("alerta_id"))
     apto = not motivos
     return {
         "apto": apto,
         "dictamen": "APTO" if apto else "NO APTO",
-        "motivos": motivos or [f"Sin intoxicaciones registradas en {ventana_dias} días ni a {RADIO_KM:.0f} km."],
+        "motivos": motivos or [f"Sin envenenamientos en {ventana_dias} días ni a {RADIO_KM:.0f} km."],
         "eventos_relevantes": sorted(set(filter(None, relevantes))),
     }
 

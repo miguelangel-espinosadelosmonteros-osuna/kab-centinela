@@ -103,9 +103,37 @@ def lectura_sana(c: dict, ts: datetime, tick: int, min_tick: int, sesion: str) -
         "humedad_pct": 68.0 - 10.0 * ciclo + random.uniform(-2, 2),
         "sonido_db": 72.0 + 2.0 * ciclo + random.uniform(-0.8, 0.8),
         "sonido_hz": 250.0 + random.uniform(-15, 15),
-        "bateria_pct": max(20.0, 95.0 - tick * 0.05),
+        "bateria_pct": c.get("bateria_pct") or max(20.0, 95.0 - tick * 0.05),
         "sesion": sesion,
     }
+
+
+def _redondear(lec: dict) -> dict:
+    return {k: (round(v, 2) if isinstance(v, float) and k not in ("lat", "lon") else v) for k, v in lec.items()}
+
+
+def generar_mixto(colmenas: list, fin: datetime, horas: float = 50, min_tick: int = 30):
+    """Datos de muestra: cada colmena tiene su propio caso ('caso' en colmenas_region.json).
+
+    Genera `horas` de historia que terminan en `fin` (ahora), así el tablero se ve 'en vivo'.
+    """
+    ticks = int(horas * 60 / min_tick)
+    inicio = fin - timedelta(minutes=ticks * min_tick)
+    sesion = f"sim-mixto-{fin.strftime('%H%M%S')}"
+    for tick in range(ticks + 1):
+        ts = inicio + timedelta(minutes=tick * min_tick)
+        grupo = []
+        for c in colmenas:
+            lec = lectura_sana(c, ts, tick, min_tick, sesion)
+            caso = c.get("caso", "normal")
+            if caso in ESCENARIOS and caso != "normal":
+                inicio_tick = ticks - int(c.get("inicio_h", 2) * 60 / min_tick)
+                if tick >= inicio_tick:
+                    # convierte el tiempo transcurrido a los "ticks" propios del escenario
+                    k = int((tick - inicio_tick) * min_tick / ESCENARIOS[caso]["min_tick"])
+                    efecto(caso, lec, k, c["colmena_id"])
+            grupo.append(_redondear(lec))
+        yield grupo
 
 
 def generar(escenario: str, colmenas: list, inicio: datetime, ticks=None):
@@ -121,8 +149,7 @@ def generar(escenario: str, colmenas: list, inicio: datetime, ticks=None):
             k = tick - cfg["calentar"]
             if c["colmena_id"] in cfg["afecta"] and k >= 0:
                 efecto(escenario, lec, k, c["colmena_id"])
-            grupo.append({k2: (round(v, 2) if isinstance(v, float) and k2 not in ("lat", "lon") else v)
-                          for k2, v in lec.items()})
+            grupo.append(_redondear(lec))
         yield grupo
 
 
@@ -156,6 +183,7 @@ class DestinoLocal:
 
         self.d, self.validar = d, validar_lectura
         self.historial, self.vigentes, self.eventos = {}, {}, []
+        self.ultima, self.desconectadas = {}, set()
 
     def enviar(self, datos: dict):
         d = self.d
@@ -176,10 +204,69 @@ class DestinoLocal:
         vig, emitir = d.actualizar_alertas_vigentes(previas, alertas, lec["ts"], sesion_prev, lec.get("sesion"))
         self.vigentes[cid] = (vig, lec.get("sesion"))
         hist.append(lec)
+        self.ultima[cid] = lec
         for a in emitir:
-            self.eventos.append(a)
-            print(f"  {COLOR.get(a['severidad'], '')}⚠ {a['severidad'].upper():8} {a['tipo']:18} "
-                  f"{a['colmena_id']:7} {a['mensaje']}\033[0m")
+            self._emitir(a)
+
+    def _emitir(self, a):
+        a["recibido"] = a["ts"]
+        self.eventos.append(a)
+        print(f"  {COLOR.get(a['severidad'], '')}⚠ {a['severidad'].upper():8} {a['tipo']:18} "
+              f"{a['colmena_id']:7} {a['mensaje']}\033[0m")
+
+    def cortar(self, colmena_id: str):
+        """Simula el Last Will de una colmena que se quedó sin señal."""
+        d, lec = self.d, self.ultima.get(colmena_id)
+        if not lec:
+            return
+        alerta = d.nueva_alerta(d.DESCONEXION, lec, "El sensor dejó de transmitir sin despedirse (Last Will).", {})
+        previas, sesion = self.vigentes.get(colmena_id, ({}, None))
+        vig, emitir = d.actualizar_alertas_vigentes(previas, [alerta], lec["ts"], sesion, sesion)
+        self.vigentes[colmena_id] = (vig, sesion)
+        self.desconectadas.add(colmena_id)
+        for a in emitir:
+            self._emitir(a)
+
+    def exportar(self, ruta: str, n_lecturas: int = 48):
+        """Guarda una 'foto' del estado con la forma de la API, para el modo demostración del tablero."""
+        from kab_core.evidencia import armar_expediente, digest_sha256
+        from kab_core.narrativa import plantilla_respaldo
+
+        d, campos = self.d, ("ts", "peso_kg", "temp_int_c", "temp_ext_c", "humedad_pct", "sonido_db", "sonido_hz",
+                             "bateria_pct")
+        colmenas, lecturas = [], {}
+        for cid, lec in sorted(self.ultima.items()):
+            vig, _ = self.vigentes.get(cid, ({}, None))
+            colmenas.append({
+                **{k: lec.get(k) for k in ("colmena_id", "apiario_id", "apiario_nombre", "municipio", "lat", "lon",
+                                           "apicultor")},
+                "estado": d.estado_colmena(vig),
+                "conectada": cid not in self.desconectadas,
+                "ultima_lectura": {k: lec.get(k) for k in campos},
+                "actualizado": lec["ts"],
+                "alertas_vigentes": sorted(({"tipo": t, **v} for t, v in vig.items()),
+                                           key=lambda a: -d.SEVERIDAD_ORDEN[a["severidad"]]),
+            })
+            hist = self.historial[(cid, lec.get("sesion"))]
+            lecturas[cid] = [{k: l.get(k) for k in campos} for l in hist[-n_lecturas:]]
+        alertas = sorted(self.eventos, key=lambda a: a["ts"], reverse=True)
+        expedientes = []
+        for a in [a for a in alertas if a["tipo"] in (d.INTOXICACION, d.BROTE_REGIONAL)][:4]:
+            hist = self.historial[(a["colmena_id"], a.get("sesion"))]
+            doc = armar_expediente(a, [l for l in hist if l["ts"] <= a["ts"]][-8:], {}, [], a["ts"])
+            expedientes.append({
+                "doc_id": doc["expediente_id"], "creado": a["ts"], "colmena_id": a["colmena_id"],
+                "apiario_id": a["apiario_id"], "tipo_alerta": a["tipo"], "resumen": a["mensaje"],
+                "narrativa": plantilla_respaldo(doc), "narrativa_fuente": "plantilla (modo demostración)",
+                "sobre": {"documento": doc, "firma": {"algoritmo": "ECDSA_SHA_256", "llave": "demo",
+                                                     "digest_sha256": digest_sha256(doc).hex(), "valor_b64": "DEMO"}},
+            })
+        os.makedirs(os.path.dirname(ruta) or ".", exist_ok=True)
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump({"generado": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "colmenas": colmenas,
+                       "alertas": alertas, "lecturas": lecturas, "expedientes": expedientes},
+                      f, ensure_ascii=False, separators=(",", ":"))
+        print(f"Datos de demostración guardados en {ruta} ({os.path.getsize(ruta) // 1024} KB)")
 
     def cerrar(self):
         print(f"\nTotal de alertas: {len(self.eventos)}")
@@ -241,7 +328,10 @@ class DestinoIoT:
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--modo", choices=["local", "iot"], default="local")
-    p.add_argument("--escenario", choices=list(ESCENARIOS) + ["todo"], default="fumigacion")
+    p.add_argument("--escenario", choices=list(ESCENARIOS) + ["todo", "mixto"], default="fumigacion",
+                   help="mixto = datos de muestra: un caso distinto por colmena (usa colmenas_region.json)")
+    p.add_argument("--colmenas", help="archivo de colmenas (por defecto colmenas.json; mixto usa colmenas_region.json)")
+    p.add_argument("--exportar-demo", help="(modo local) guarda el estado final para el modo demostración del tablero")
     p.add_argument("--velocidad", type=float, default=1.0, help="segundos reales entre ticks")
     p.add_argument("--ticks", type=int, help="cuántos ticks simular (por defecto, los del escenario)")
     p.add_argument("--archivo", help="reproducir lecturas de un .json/.jsonl/.csv en vez de generarlas")
@@ -252,7 +342,8 @@ def main():
     args = p.parse_args()
     random.seed(args.semilla)
 
-    with open(os.path.join(AQUI, "colmenas.json"), encoding="utf-8") as f:
+    archivo = args.colmenas or ("colmenas_region.json" if args.escenario == "mixto" else "colmenas.json")
+    with open(os.path.join(AQUI, archivo) if not os.path.isabs(archivo) else archivo, encoding="utf-8") as f:
         colmenas = json.load(f)["colmenas"]
 
     destino = DestinoIoT(args.certs) if args.modo == "iot" else DestinoLocal()
@@ -274,6 +365,20 @@ def main():
                 enviar(lec)
                 if args.velocidad and i % len(colmenas) == len(colmenas) - 1:
                     time.sleep(args.velocidad)
+        elif args.escenario == "mixto":
+            ahora = datetime.now(timezone.utc).replace(microsecond=0)
+            casos = ", ".join(sorted({c.get("caso", "normal") for c in colmenas}))
+            print(f"\n▶ Datos de muestra: {len(colmenas)} colmenas, 50 h de historia hasta ahora ({casos}) [{args.modo}]")
+            for tick, grupo in enumerate(generar_mixto(colmenas, ahora)):
+                if tick % 10 == 0:
+                    print(f"  tick {tick:3d}  {grupo[0]['ts']}")
+                for lec in grupo:
+                    enviar(lec)
+                if args.velocidad:
+                    time.sleep(args.velocidad)
+            for c in colmenas:
+                if c.get("desconectar"):
+                    destino.cortar(c["colmena_id"])
         else:
             escenarios = ORDEN_TODO if args.escenario == "todo" else [args.escenario]
             inicio = datetime.now(timezone.utc).replace(microsecond=0)
@@ -292,6 +397,8 @@ def main():
                         enviar(lec)
                     time.sleep(args.velocidad)
     finally:
+        if args.exportar_demo and isinstance(destino, DestinoLocal):
+            destino.exportar(args.exportar_demo)
         destino.cerrar()
         if salida:
             salida.close()

@@ -3,61 +3,121 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useApi } from "@/lib/api";
-import { Cargando, Insignia, Linea, hora, num } from "@/components/ui";
+import { ESTADOS, problema } from "@/lib/textos";
+import { indicadores, tono } from "@/lib/indicadores";
+import { Cargando, Chip, IconoEstado, claseEstado, estadoDeSeveridad, fecha, hace, num } from "@/components/ui";
+import { BotonEscuchar, BotonLlamar, BotonWhatsApp, urlActual } from "@/components/Acciones";
+import Grafica from "@/components/Grafica";
 
-const SERIES = [
-  ["peso_kg", "Peso", " kg", 2, "var(--miel)"],
-  ["sonido_db", "Zumbido", " dB", 1, "var(--alerta)"],
-  ["temp_int_c", "Temp. de cría", " °C", 1, "var(--critica)"],
-  ["sonido_hz", "Tono del zumbido", " Hz", 0, "var(--sana)"],
-  ["humedad_pct", "Humedad exterior", " %", 0, "var(--atencion)"],
-  ["temp_ext_c", "Temp. exterior", " °C", 1, "var(--suave)"],
-];
+function Problema({ vigente, colmena, alerta }) {
+  const p = problema(vigente.tipo);
+  const estado = estadoDeSeveridad(vigente.severidad);
+  const lugar = `${colmena.apiario_nombre || colmena.apiario_id}${colmena.municipio ? `, ${colmena.municipio}` : ""}`;
+  const leer = `${p.titulo}. Colmena ${colmena.colmena_id}, ${lugar}. ${p.explicacion} Qué hacer: ${p.pasos
+    .map((paso, i) => `${i + 1}. ${paso}`).join(" ")}`;
+  const whatsapp = `⚠️ KAB Centinela: ${p.titulo} en la colmena ${colmena.colmena_id} (${lugar}). ${p.corto} ${urlActual()}`;
 
-export default function DetalleColmena() {
+  return (
+    <section className={`tarjeta ${claseEstado(estado)}`} style={{ borderLeft: "6px solid var(--c)" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <span style={{ fontSize: "2.6rem" }} aria-hidden="true">{p.emoji}</span>
+        <div>
+          <Chip estado={estado} />
+          <h2 style={{ margin: "6px 0 0" }}>{p.titulo}</h2>
+        </div>
+      </div>
+      <p style={{ fontSize: "1.05rem" }}><b>¿Qué está pasando?</b> {p.explicacion}</p>
+      {alerta && <p className="chico">Lo notamos {hace(alerta.recibido || alerta.ts)} · {alerta.mensaje}</p>}
+      <h3 style={{ marginTop: 14 }}>Qué hacer ahora</h3>
+      <ol className="pasos">{p.pasos.map((paso) => <li key={paso}>{paso}</li>)}</ol>
+      <div className="acciones">
+        <BotonEscuchar texto={leer} etiqueta="Escuchar qué hacer" />
+        <BotonWhatsApp texto={whatsapp} etiqueta="Avisar por WhatsApp" />
+        <BotonLlamar />
+        {p.prueba && (
+          <Link className="boton primario" href={`/expedientes?colmena=${colmena.colmena_id}`}>
+            <span className="emoji" aria-hidden="true">🛡️</span>Ver la prueba para denunciar
+          </Link>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default function Colmena() {
   const { id } = useParams();
-  const { datos, error } = useApi(`/colmenas/${id}`, 4000);
-  if (!datos) return <Cargando error={error} />;
+  const { datos, error, recargar } = useApi(`/colmenas/${id}?limite=96`, 5000);
+  if (!datos) return <Cargando error={error} recargar={recargar} />;
+
   const { colmena: c, lecturas, alertas } = datos;
+  const lista = indicadores(lecturas);
+  const ultima = lecturas.at(-1) || c.ultima_lectura || {};
+  const est = ESTADOS[c.estado] || ESTADOS.sana;
 
   return (
     <>
-      <p className="sub"><Link href="/">← Tablero</Link></p>
-      <h1>{c.colmena_id} <Insignia valor={c.estado} /></h1>
-      <p className="sub">
-        {c.apiario_nombre} · {c.municipio} · {num(c.lat, 4)}, {num(c.lon, 4)} ·{" "}
-        {c.conectada === false ? "sensor sin señal" : "sensor conectado"}
-      </p>
+      <Link href="/" className="volver">← Volver al inicio</Link>
+      <h1>Colmena {c.colmena_id}</h1>
+      <p className="sub">{c.apiario_nombre} · {c.municipio}{c.apicultor ? ` · ${c.apicultor}` : ""}</p>
 
-      <div className="graficas">
-        {SERIES.map(([campo, nombre, unidad, dec, color]) => {
-          const valores = lecturas.map((l) => l[campo]);
-          return (
-            <div className="tarjeta grafica" key={campo}>
-              <small className="sub">{nombre}</small>
-              <div className="valor">{num(valores[valores.length - 1], dec, unidad)}</div>
-              <Linea valores={valores} color={color} />
-            </div>
-          );
-        })}
+      <div className={`banner ${claseEstado(c.estado)}`} role="status">
+        <IconoEstado estado={c.estado} />
+        <div><strong>{est.palabra}</strong><span>{c.alertas_vigentes?.length ? est.frase : "Todo normal en esta colmena."}</span></div>
       </div>
-      <p className="fuente">Últimas {lecturas.length} lecturas · última: {hora(lecturas.at(-1)?.ts)}</p>
+      {c.conectada === false && (
+        <div className="tarjeta" style={{ marginTop: 12 }}>📡 <b>El sensor no responde.</b> Los datos de abajo son de la última vez que se comunicó.</div>
+      )}
 
-      <h2>Alertas de esta colmena</h2>
-      {!alertas.length ? <p className="sub">Sin alertas.</p> : (
-        <ul className="lista">
-          {alertas.map((a) => (
-            <li key={a.alerta_id} className="tarjeta">
-              <div className="linea"><Insignia valor={a.severidad} texto={a.severidad} /><strong>{a.titulo}</strong></div>
-              <small>{hora(a.ts)}</small>
-              <div>{a.mensaje}</div>
-              <div><b>Qué hacer:</b> {a.recomendacion}</div>
-              {["INTOXICACION", "BROTE_REGIONAL"].includes(a.tipo) && (
-                <small><Link href="/expedientes">Ver expediente firmado →</Link></small>
-              )}
-            </li>
+      {c.alertas_vigentes?.length > 0 && (
+        <div className="pila" style={{ marginTop: 16 }}>
+          {c.alertas_vigentes.map((v) => (
+            <Problema key={v.tipo} vigente={v} colmena={c} alerta={alertas.find((a) => a.alerta_id === v.alerta_id)} />
           ))}
-        </ul>
+        </div>
+      )}
+
+      <h2>¿Cómo está por dentro?</h2>
+      <p className="sub">Toca una gráfica con el dedo para ver cada lectura.</p>
+      <div className="pila">
+        {lista.map((ind) => (
+          <section key={ind.clave} className="tarjeta indicador">
+            <div className="cabeza">
+              <span className="etiqueta"><span className="emoji" aria-hidden="true">{ind.emoji}</span>{ind.etiqueta}</span>
+              <Chip estado={ind.estado} texto={ind.palabra} />
+            </div>
+            <div className="valor">{num(ind.valor, ind.dec)} <small style={{ fontSize: "1rem" }}>{ind.unidad}</small></div>
+            <Grafica datos={ind.serie} banda={ind.banda} unidad={ind.unidad} dec={ind.dec} nombre={ind.etiqueta} />
+          </section>
+        ))}
+      </div>
+
+      <details className="tarjeta" style={{ marginTop: 16 }}>
+        <summary>Más datos del sensor</summary>
+        <table className="tabla">
+          <tbody>
+            <tr><th>Tono del zumbido</th><td>{num(ultima.sonido_hz, 0)} Hz · {tono(ultima.sonido_hz)}</td></tr>
+            <tr><th>Temperatura de afuera</th><td>{num(ultima.temp_ext_c, 1)} °C</td></tr>
+            <tr><th>Batería del sensor</th><td>{num(ultima.bateria_pct, 0)} %{ultima.bateria_pct < 15 ? " 🔋 cambiarla pronto" : ""}</td></tr>
+            <tr><th>Última lectura</th><td>{fecha(ultima.ts)}</td></tr>
+            <tr><th>Ubicación</th><td><a href={`https://www.google.com/maps?q=${c.lat},${c.lon}`} target="_blank" rel="noreferrer">{num(c.lat, 4)}, {num(c.lon, 4)} (abrir mapa)</a></td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <h2>Avisos anteriores</h2>
+      {!alertas.length ? <p className="sub">Esta colmena no ha tenido avisos.</p> : (
+        <div className="tarjeta">
+          <table className="tabla">
+            <tbody>
+              {alertas.map((a) => (
+                <tr key={a.alerta_id}>
+                  <td style={{ width: 36, fontSize: "1.3rem" }} aria-hidden="true">{problema(a.tipo).emoji}</td>
+                  <td><b>{problema(a.tipo).titulo}</b><div className="chico">{fecha(a.recibido || a.ts)}</div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

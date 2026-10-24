@@ -1,87 +1,121 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useCallback, useMemo } from "react";
 import { useApi } from "@/lib/api";
-import { Cargando, Insignia, hora, num } from "@/components/ui";
+import { ESTADOS, problema } from "@/lib/textos";
+import { Cargando, Chip, IconoEstado, claseEstado, hace, saludo } from "@/components/ui";
+import TarjetaAviso from "@/components/TarjetaAviso";
 
-function TarjetaColmena({ c }) {
-  const l = c.ultima_lectura || {};
+const Mapa = dynamic(() => import("@/components/Mapa"), { ssr: false, loading: () => <div className="mapa" /> });
+
+function Resumen({ r }) {
+  const urgentes = r.critica;
+  const revisar = r.alerta + r.atencion;
+  let estado = "sana", titulo = "Todas tus colmenas están bien", texto = "No tienes que hacer nada por ahora.";
+  if (urgentes) {
+    estado = "critica";
+    titulo = urgentes === 1 ? "1 colmena necesita ayuda urgente" : `${urgentes} colmenas necesitan ayuda urgente`;
+    texto = "Mira abajo qué hacer.";
+  } else if (revisar) {
+    estado = r.alerta ? "alerta" : "atencion";
+    titulo = revisar === 1 ? "1 colmena necesita revisión" : `${revisar} colmenas necesitan revisión`;
+    texto = "No es urgente, pero ve a verlas.";
+  }
   return (
-    <Link href={`/colmenas/${c.colmena_id}`} className={`tarjeta colmena ${c.estado}`}>
-      <div className="cabeza">
-        <strong>{c.colmena_id}</strong>
-        <span>
-          {c.conectada === false && <Insignia valor="alerta" texto="Sin señal" />} <Insignia valor={c.estado} />
-        </span>
+    <>
+      <div className={`banner ${claseEstado(estado)}`} role="status">
+        <IconoEstado estado={estado} />
+        <div><strong>{titulo}</strong><span>{texto}</span></div>
       </div>
-      <div className="datos">
-        <div><span>Peso</span> {num(l.peso_kg, 1, " kg")}</div>
-        <div><span>Cría</span> {num(l.temp_int_c, 1, " °C")}</div>
-        <div><span>Zumbido</span> {num(l.sonido_db, 0, " dB")}</div>
-        <div><span>Tono</span> {num(l.sonido_hz, 0, " Hz")}</div>
+      <div className="resumen">
+        <div className={`cifra ${claseEstado("sana")}`}><IconoEstado estado="sana" /><b>{r.sana}</b><span>Bien</span></div>
+        <div className={`cifra ${claseEstado("atencion")}`}><IconoEstado estado="atencion" /><b>{r.alerta + r.atencion}</b><span>Revisar</span></div>
+        <div className={`cifra ${claseEstado("critica")}`}><IconoEstado estado="critica" /><b>{r.critica}</b><span>Urgente</span></div>
       </div>
-      {c.alertas_vigentes?.length > 0 && (
-        <ul>{c.alertas_vigentes.map((a) => <li key={a.tipo}>{a.titulo}</li>)}</ul>
-      )}
-    </Link>
+    </>
   );
 }
 
-export default function Tablero() {
-  const { datos, error } = useApi("/colmenas", 4000);
-  const { datos: alertas } = useApi("/alertas?limite=15", 5000);
+export default function Inicio() {
+  const { datos, error, recargar } = useApi("/colmenas", 5000);
+  const { datos: avisos } = useApi("/alertas?limite=40", 6000);
+  const irApiario = useCallback((a) => {
+    document.getElementById(`apiario-${a.apiario_id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+  const apiarios = useMemo(() => datos?.apiarios || [], [datos]);
 
-  if (!datos) return <Cargando error={error} />;
-  const r = datos.resumen;
+  if (!datos) return <Cargando error={error} recargar={recargar} />;
+
+  // Un aviso por apiario (el más grave y luego el más reciente), solo urgentes y de "revisar hoy"
+  const RANGO = { critica: 2, alta: 1 };
+  const vistos = new Set();
+  const importantes = (avisos?.alertas || [])
+    .filter((a) => RANGO[a.severidad])
+    .sort((x, y) => RANGO[y.severidad] - RANGO[x.severidad]
+      || (y.tipo === "BROTE_REGIONAL") - (x.tipo === "BROTE_REGIONAL")
+      || String(y.recibido || y.ts).localeCompare(String(x.recibido || x.ts)))
+    .filter((a) => {
+      if (vistos.has(a.apiario_id)) return false;
+      vistos.add(a.apiario_id);
+      return true;
+    })
+    .slice(0, 4);
 
   return (
     <>
-      <h1>Tablero de colmenas</h1>
-      <p className="sub">Se actualiza solo cada 4 segundos.</p>
-      {error && <div className="error">{error}</div>}
-
-      <div className="resumen">
-        <div className="tarjeta"><b>{r.total}</b><small>colmenas</small></div>
-        <div className="tarjeta"><b style={{ color: "var(--sana)" }}>{r.sana}</b><small>sanas</small></div>
-        <div className="tarjeta"><b style={{ color: "var(--atencion)" }}>{r.atencion}</b><small>atención</small></div>
-        <div className="tarjeta"><b style={{ color: "var(--alerta)" }}>{r.alerta}</b><small>alerta</small></div>
-        <div className="tarjeta"><b style={{ color: "var(--critica)" }}>{r.critica}</b><small>críticas</small></div>
-      </div>
+      <h1>{saludo()} 👋</h1>
+      <p className="sub">Así están tus colmenas ahora.</p>
+      <Resumen r={datos.resumen} />
 
       {datos.colmenas.length === 0 && (
-        <div className="tarjeta">Aún no llegan lecturas. Corre el simulador: <code>python simular_colmenas.py --modo iot</code></div>
+        <div className="tarjeta" style={{ marginTop: 16 }}>Todavía no llegan datos de tus colmenas.</div>
       )}
 
-      {datos.apiarios.map((a) => (
-        <section key={a.apiario_id}>
-          <h2>
-            {a.nombre} <small className="sub">· {a.municipio}</small> <Insignia valor={a.estado} />
-          </h2>
-          <div className="rejilla">
-            {datos.colmenas.filter((c) => c.apiario_id === a.apiario_id).map((c) => (
-              <TarjetaColmena key={c.colmena_id} c={c} />
-            ))}
+      {importantes.length > 0 && (
+        <>
+          <h2>Atiende primero</h2>
+          <div className="pila">
+            {importantes.map((a) => <TarjetaAviso key={a.alerta_id} alerta={a} />)}
           </div>
-        </section>
-      ))}
+          <p style={{ marginTop: 10 }}><Link href="/avisos" className="boton ancho">Ver todos los avisos</Link></p>
+        </>
+      )}
 
-      <h2>Alertas recientes</h2>
-      <div className="tarjeta">
-        {!alertas?.alertas?.length ? <p className="sub">Sin alertas.</p> : (
-          <ul className="lista">
-            {alertas.alertas.map((a) => (
-              <li key={a.alerta_id}>
-                <div className="linea">
-                  <Insignia valor={a.severidad} texto={a.severidad} />
-                  <strong>{a.titulo}</strong>
-                  <Link href={`/colmenas/${a.colmena_id}`}>{a.colmena_id}</Link>
-                </div>
-                <small>{hora(a.ts)} · {a.apiario_nombre || a.apiario_id} · {a.mensaje}</small>
-              </li>
-            ))}
-          </ul>
-        )}
+      <h2>Dónde están tus apiarios</h2>
+      <Mapa apiarios={apiarios} alTocar={irApiario} />
+      <p className="chico">Toca un apiario en el mapa para ver sus colmenas. El círculo rojo marca 3 km alrededor de un envenenamiento.</p>
+
+      <h2>Tus apiarios</h2>
+      <div className="pila">
+        {apiarios.map((a) => (
+          <section key={a.apiario_id} id={`apiario-${a.apiario_id}`} className="tarjeta" style={{ scrollMarginTop: 80 }}>
+            <div className="apiario-cabeza">
+              <div>
+                <h3 style={{ fontSize: "1.15rem" }}>{a.nombre}</h3>
+                <div className="chico">{a.municipio}{a.apicultor ? ` · ${a.apicultor}` : ""}</div>
+              </div>
+              <Chip estado={a.estado} />
+            </div>
+            <div className="colmenas">
+              {datos.colmenas.filter((c) => c.apiario_id === a.apiario_id).map((c) => {
+                const peor = c.alertas_vigentes?.[0];
+                return (
+                  <Link key={c.colmena_id} href={`/colmenas/${c.colmena_id}`} className={`colmena ${claseEstado(c.estado)}`}>
+                    <span className="nombre"><IconoEstado estado={c.estado} />{c.colmena_id}</span>
+                    <span className="que">
+                      {peor ? `${problema(peor.tipo).emoji} ${problema(peor.tipo).titulo}` : ESTADOS[c.estado]?.frase}
+                    </span>
+                    {c.conectada === false && <span className="que">📡 Sin señal</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
       </div>
+      <p className="chico" style={{ marginTop: 16 }}>Última actualización: {hace(datos.colmenas[0]?.actualizado)}</p>
     </>
   );
 }

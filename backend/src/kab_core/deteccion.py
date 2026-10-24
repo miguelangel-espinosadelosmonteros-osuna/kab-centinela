@@ -144,7 +144,7 @@ UMBRALES = {
 # Cuánto tiempo sigue "activa" una alerta (y no se repite el aviso)
 VIGENCIA_MIN = {"critica": 24 * 60, "alta": 180, "media": 360, "baja": 360}
 # Los problemas lentos duran días: no se repite el aviso cada pocas horas
-VIGENCIA_TIPO_MIN = {HAMBRUNA: 72 * 60, VARROA: 72 * 60, SEQUIA: 12 * 60}
+VIGENCIA_TIPO_MIN = {HAMBRUNA: 72 * 60, VARROA: 72 * 60, SEQUIA: 12 * 60, BATERIA_BAJA: 24 * 60}
 
 
 # ---------------------------------------------------------------- utilidades

@@ -1,0 +1,173 @@
+{
+  "_nota": "Datos de muestra: 14 colmenas en 7 apiarios de Yucatán y Campeche, cada una con un caso distinto. Coordenadas aproximadas. 'caso' = escenario del simulador; 'inicio_h' = horas antes de ahora en que empieza el problema.",
+  "colmenas": [
+    {
+      "colmena_id": "TEK-01",
+      "apiario_id": "TEK-NOH-A",
+      "apiario_nombre": "Nohalal A",
+      "municipio": "Tekax",
+      "apicultor": "Don Felipe Chi",
+      "lat": 20.096,
+      "lon": -89.33,
+      "peso_kg": 42.0,
+      "caso": "fumigacion",
+      "inicio_h": 3
+    },
+    {
+      "colmena_id": "TEK-02",
+      "apiario_id": "TEK-NOH-A",
+      "apiario_nombre": "Nohalal A",
+      "municipio": "Tekax",
+      "apicultor": "Don Felipe Chi",
+      "lat": 20.096,
+      "lon": -89.33,
+      "peso_kg": 38.5,
+      "caso": "fumigacion",
+      "inicio_h": 3
+    },
+    {
+      "colmena_id": "TEK-03",
+      "apiario_id": "TEK-NOH-A",
+      "apiario_nombre": "Nohalal A",
+      "municipio": "Tekax",
+      "apicultor": "Don Felipe Chi",
+      "lat": 20.096,
+      "lon": -89.33,
+      "peso_kg": 45.2,
+      "caso": "fumigacion",
+      "inicio_h": 3
+    },
+    {
+      "colmena_id": "TEK-04",
+      "apiario_id": "TEK-NOH-B",
+      "apiario_nombre": "Nohalal B",
+      "municipio": "Tekax",
+      "apicultor": "Doña Rosa May",
+      "lat": 20.105,
+      "lon": -89.32,
+      "peso_kg": 40.1,
+      "caso": "fumigacion",
+      "inicio_h": 2.5
+    },
+    {
+      "colmena_id": "TEK-05",
+      "apiario_id": "TEK-NOH-B",
+      "apiario_nombre": "Nohalal B",
+      "municipio": "Tekax",
+      "apicultor": "Doña Rosa May",
+      "lat": 20.105,
+      "lon": -89.32,
+      "peso_kg": 43.7,
+      "caso": "fumigacion",
+      "inicio_h": 2.5
+    },
+    {
+      "colmena_id": "PET-01",
+      "apiario_id": "PETO-01",
+      "apiario_nombre": "Peto Centro",
+      "municipio": "Peto",
+      "apicultor": "Apicultores de Peto",
+      "lat": 20.1256,
+      "lon": -88.9217,
+      "peso_kg": 41.3,
+      "caso": "normal"
+    },
+    {
+      "colmena_id": "PET-02",
+      "apiario_id": "PETO-01",
+      "apiario_nombre": "Peto Centro",
+      "municipio": "Peto",
+      "apicultor": "Apicultores de Peto",
+      "lat": 20.1256,
+      "lon": -88.9217,
+      "peso_kg": 39.9,
+      "caso": "enjambrazon",
+      "inicio_h": 2
+    },
+    {
+      "colmena_id": "TZU-01",
+      "apiario_id": "TZU-01",
+      "apiario_nombre": "Ejido Tzucacab",
+      "municipio": "Tzucacab",
+      "apicultor": "Don Marcos Uc",
+      "lat": 20.0703,
+      "lon": -89.0503,
+      "peso_kg": 37.8,
+      "caso": "calor",
+      "inicio_h": 2
+    },
+    {
+      "colmena_id": "TZU-02",
+      "apiario_id": "TZU-01",
+      "apiario_nombre": "Ejido Tzucacab",
+      "municipio": "Tzucacab",
+      "apicultor": "Don Marcos Uc",
+      "lat": 20.0703,
+      "lon": -89.0503,
+      "peso_kg": 40.6,
+      "caso": "sequia",
+      "inicio_h": 8
+    },
+    {
+      "colmena_id": "TIZ-01",
+      "apiario_id": "TIZ-01",
+      "apiario_nombre": "Rancho Tizimín",
+      "municipio": "Tizimín",
+      "apicultor": "Cooperativa del Oriente",
+      "lat": 21.1425,
+      "lon": -88.1647,
+      "peso_kg": 44.0,
+      "caso": "frio",
+      "inicio_h": 2
+    },
+    {
+      "colmena_id": "TIZ-02",
+      "apiario_id": "TIZ-01",
+      "apiario_nombre": "Rancho Tizimín",
+      "municipio": "Tizimín",
+      "apicultor": "Cooperativa del Oriente",
+      "lat": 21.1425,
+      "lon": -88.1647,
+      "peso_kg": 42.4,
+      "caso": "normal",
+      "bateria_pct": 12,
+      "desconectar": true
+    },
+    {
+      "colmena_id": "OXK-01",
+      "apiario_id": "OXK-01",
+      "apiario_nombre": "Huerta Oxkutzcab",
+      "municipio": "Oxkutzcab",
+      "apicultor": "Doña Juana Pech",
+      "lat": 20.3028,
+      "lon": -89.4183,
+      "peso_kg": 39.0,
+      "caso": "hambruna",
+      "inicio_h": 48
+    },
+    {
+      "colmena_id": "OXK-02",
+      "apiario_id": "OXK-01",
+      "apiario_nombre": "Huerta Oxkutzcab",
+      "municipio": "Oxkutzcab",
+      "apicultor": "Doña Juana Pech",
+      "lat": 20.3028,
+      "lon": -89.4183,
+      "peso_kg": 41.7,
+      "caso": "sin_reina",
+      "inicio_h": 2
+    },
+    {
+      "colmena_id": "HOP-01",
+      "apiario_id": "HOP-01",
+      "apiario_nombre": "Monte Hopelchén",
+      "municipio": "Hopelchén",
+      "apicultor": "Don Ignacio Ku",
+      "lat": 19.7444,
+      "lon": -89.8431,
+      "peso_kg": 40.2,
+      "caso": "varroa",
+      "inicio_h": 24
+    }
+  ]
+}
