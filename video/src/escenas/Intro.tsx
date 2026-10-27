@@ -36,10 +36,10 @@ export const Intro: React.FC<{ conTexto?: boolean }> = ({ conTexto = true }) => 
         {conTexto && (
           <div style={{ textAlign: "center" }}>
             <div style={{
-              fontFamily: TITULO, fontWeight: 700, fontSize: 150, lineHeight: 0.95, letterSpacing: "-0.025em", color: C.crema,
+              fontFamily: TITULO, fontWeight: 700, fontSize: 190, lineHeight: 0.95, letterSpacing: "-0.025em", color: C.crema,
               opacity: interpolate(f, [52, 66], [0, 1], fijo),
             }}>
-              KAB <span style={{ fontStyle: "italic", fontWeight: 400, color: "#f6c766" }}>Centinela</span>
+              Kaab
             </div>
             <div style={{
               fontFamily: TITULO, fontStyle: "italic", fontSize: 58, color: C.crema2, marginTop: 18,

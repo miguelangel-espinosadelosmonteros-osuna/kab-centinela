@@ -1,4 +1,4 @@
-# Video de KAB Centinela (Remotion)
+# Video de Kaab (Remotion)
 
 Video de 15 s para el pitch: la colmena que escucha, la fumigación en Nohalal, el aviso por SMS, el expediente sellado con KMS y el pasaporte con QR verificado. Usa los íconos, el logo y los datos de muestra de `../web`, así que siempre coincide con el tablero.
 

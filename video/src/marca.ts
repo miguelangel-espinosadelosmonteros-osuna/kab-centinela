@@ -1,4 +1,4 @@
-// Marca de KAB Centinela para el video: los mismos valores que web/app/globals.css.
+// Marca de Kaab para el video: los mismos valores que web/app/globals.css.
 import { loadFont as fraunces } from "@remotion/google-fonts/Fraunces";
 import { loadFont as atkinson } from "@remotion/google-fonts/AtkinsonHyperlegible";
 import { loadFont as plex } from "@remotion/google-fonts/IBMPlexMono";

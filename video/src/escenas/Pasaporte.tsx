@@ -22,7 +22,7 @@ export const Pasaporte: React.FC = () => {
       <div style={{ position: "absolute", left: 1150, top: 120, width: 600, height: 840, perspective: 2400 }}>
         <div style={{ position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", rotate: `y ${giro}deg` }}>
           <div style={{ ...cara, background: "#5c3a1f", color: C.cera }}>
-            <div style={{ fontFamily: DATO, fontSize: 20, letterSpacing: "0.12em", color: C.polen }}>PASAPORTE DEL LOTE · KAB CENTINELA</div>
+            <div style={{ fontFamily: DATO, fontSize: 20, letterSpacing: "0.12em", color: C.polen }}>PASAPORTE DEL LOTE · KAAB</div>
             <div style={{ fontFamily: TITULO, fontWeight: 600, fontSize: 54, lineHeight: 1.1 }}>{LOTE.kg} kg de miel de {LOTE.flor}</div>
             <div style={{ fontFamily: TEXTO, fontSize: 30, display: "grid", gridTemplateColumns: "190px 1fr", rowGap: 8 }}>
               <span style={{ color: C.cera3 }}>Apiario</span><b>{LOTE.apiario}</b>
@@ -58,8 +58,8 @@ export const Pasaporte: React.FC = () => {
       {/* cierre de marca */}
       <AbsoluteFill style={{ background: C.noche, opacity: cierre, alignItems: "center", justifyContent: "center", gap: 34, flexDirection: "column" }}>
         <div style={{ scale: String(interpolate(f, [66, 84], [0.85, 1], { ...fijo, easing: MIEL })) }}><Logo tam={260} /></div>
-        <div style={{ fontFamily: TITULO, fontWeight: 700, fontSize: 130, lineHeight: 0.95, letterSpacing: "-0.025em", color: C.crema }}>
-          KAB <span style={{ fontStyle: "italic", fontWeight: 400, color: "#f6c766" }}>Centinela</span>
+        <div style={{ fontFamily: TITULO, fontWeight: 700, fontSize: 170, lineHeight: 0.95, letterSpacing: "-0.025em", color: C.crema }}>
+          Kaab
         </div>
         <div style={{ fontFamily: TITULO, fontStyle: "italic", fontSize: 54, color: C.crema2 }}>La colmena que escucha.</div>
       </AbsoluteFill>

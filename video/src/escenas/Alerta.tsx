@@ -59,7 +59,7 @@ export const Alerta: React.FC = () => {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: TEXTO, fontWeight: 700, fontSize: 22, color: C.propoleo }}>
                 <span style={{ color: C.alerta, display: "grid" }}><Icono nombre={i ? "BROTE_REGIONAL" : "INTOXICACION"} tam={28} /></span>
-                KAB Centinela · SMS
+                Kaab · SMS
               </div>
               <div style={{ fontFamily: TEXTO, fontSize: 24, lineHeight: 1.3, color: C.propoleo }}>{texto as string}</div>
             </div>
